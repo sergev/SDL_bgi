@@ -1,0 +1,105 @@
+# Makefile for test SDL_bgi programs, to be compiled
+# to Webassembly using Emscripten
+# Latest update: May 28, 2022
+
+CC = emcc
+SHELL1 = --shell-file ./shells/canvas_only.html
+SHELL2 = --shell-file ./shells/sdl_bgi.html
+CFLAGS = -std=gnu99 -O2 -Wall -lSDL_bgi -I. \
+  --embed-file ./assets@/. \
+  -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY -s SINGLE_FILE
+
+EMCC := $(shell command -v $(CC) 2> /dev/null)
+ifndef EMCC
+  $(error emcc not found, exiting.)
+endif
+
+PROGRAMS = boo.html buffers.html cellular.html dla.html fern.html \
+           floodfilltest.html fonts.html hopalong.html kaleido.html \
+	   life.html linebuffers.html mandelbrot.html mousetest.html \
+	   multiwin.html pdj.html psychedelia.html rgbpalette.html \
+	   sdlbgidemo.html simple.html
+
+all: $(PROGRAMS)
+
+WGET := $(shell command -v wget 2> /dev/null)
+
+bgidemo.html: bgidemo.c
+ifeq ($(msys),_NT)
+	# fix wrong main() definition
+	sed -i 's/main()/main(int argc, char *argv[])/' bgidemo.c
+endif
+	echo "VGA" > assets/SDL_BGI_RES; \
+	echo "BGI" > assets/SDL_BGI_PALETTE; \
+	$(CC) $(CFLAGS) $(SHELL1) \
+	-o bgidemo.html bgidemo.c ; \
+	/bin/rm -f assets/SDL_BGI_*
+
+bgidemo.c:
+ifdef WGET
+	wget http://sdl-bgi.sourceforge.io/bgidemo.c
+else
+	$(info Could not find 'wget', can't download bgidemo.c)
+endif
+
+boo.html: boo.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o boo.html boo.c
+
+buffers.html: buffers.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o buffers.html buffers.c
+
+cellular.html: cellular.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o cellular.html cellular.c
+
+dla.html: dla.c 
+	$(CC) $(CFLAGS) $(SHELL2) -o dla.html dla.c
+
+fern.html: fern.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o fern.html fern.c
+
+floodfilltest.html: floodfilltest.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o floodfilltest.html floodfilltest.c
+
+fonts.html: fonts.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o fonts.html fonts.c
+
+hopalong.html: hopalong.c 
+	$(CC) $(CFLAGS) $(SHELL2) -o hopalong.html hopalong.c
+
+life.html: life.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o life.html life.c
+
+linebuffers.html: linebuffers.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o linebuffers.html linebuffers.c
+
+kaleido.html: kaleido.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o kaleido.html kaleido.c
+
+mandelbrot.html: mandelbrot.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o mandelbrot.html mandelbrot.c
+
+mousetest.html: mousetest.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o mousetest.html mousetest.c
+
+multiwin.html: multiwin.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o multiwin.html multiwin.c
+
+pdj.html: pdj.c 
+	$(CC) $(CFLAGS) $(SHELL2) -o pdj.html pdj.c
+
+psychedelia.html: psychedelia.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o psychedelia.html psychedelia.c
+
+rgbpalette.html: rgbpalette.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o rgbpalette.html rgbpalette.c
+
+sdlbgidemo.html: sdlbgidemo.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o sdlbgidemo.html sdlbgidemo.c
+
+simple.html: simple.c 
+	$(CC) $(CFLAGS) $(SHELL1) -o simple.html simple.c
+
+clean:
+	rm -rf *wasm *js *html *~
+
+# --- end of Makefile

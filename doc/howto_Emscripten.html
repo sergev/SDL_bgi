@@ -1,0 +1,45 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue howto_Emscripten.md -o howto_Emscripten.pdf
+
+--->
+<h1 id="sdl_bgi-and-emscripten"><code>SDL_bgi</code> and Emscripten</h1>
+<p>Unmodified <code>SDL_bgi</code> programs can be compiled to WebAssembly using the <a href="https://emscripten.org/">Emscripten</a> compiler <code>emcc</code>; please see <code>INSTALL_Emscripten.md</code>.</p>
+<p>When Emscripten support is installed, the following tools are used to make standalone <code>html</code> files that can be run in browsers without the need of a local webserver:</p>
+<ul>
+<li><code>demo/emcc.sh</code> can be used to compile a program;</li>
+<li><code>demo/Makefile.emcc</code> compiles the sample programs.</li>
+</ul>
+<p>The <code>emcc</code> flag <code>-s ASYNCIFY</code> is used to simulate infinite loops without modifiying the program sources, at the expense of some performance hit.</p>
+<h2 id="compiling-programs">Compiling Programs</h2>
+<p>Compilation example:</p>
+<pre><code>demo$ ./emcc.sh life.c
+demo$ firefox ./life.html &amp;</code></pre>
+<p>The script <code>emcc.sh</code> uses one of the available shells in directory <code>demo/shells</code>, and embeds files that exist in <code>demo/assets</code>. Type <code>./emcc.sh -h</code> for a brief explanation.</p>
+<p>To compile nearly all available demo programs:</p>
+<pre><code>demo$ make -f Makefile.emcc</code></pre>
+<p>Not all programs can be compiled, though. For example, <code>loadimage.c</code> makes no sense when run in a browser; in fact, it expects to find files in the local file system, which is not accessible by the browser.</p>
+<p>To compile a program directly in the command line:</p>
+<pre><code>demo$ emcc --emrun -o program.html program.c -lSDL_bgi \
+    -std=gnu99 -O2 -Wall -lm \
+    -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY -s SINGLE_FILE</code></pre>
+<p>The <code>-s SINGLE_FILE</code> flag can be omitted if you are running a local web server.</p>
+<h2 id="available-shells">Available shells</h2>
+<p>Emscripten shell files are <code>html</code> templates that define how a program will look when run in the browser. Four shells are provided:</p>
+<p><code>sdl_bgi.html</code>: canvas + text area, no logo</p>
+<p><code>shell_minimal.html</code>: taken from <a href="https://github.com/emscripten-core/emscripten/blob/main/src/shell_minimal.html">Emscripten sources</a></p>
+<p><code>canvas_only.html</code>: canvas only, no text area, no logo</p>
+<p><code>fullwindow.html</code>: canvas only, full window, resizeable, no border. This shell is quite slow.</p>
+<p>If no shell is specified, the default Emscripten shell will be used.</p>
+<h2 id="environment-files">Environment Files</h2>
+<p>Environment variables don’t exist in a browser environment. However, the same result as using variables can be obtained writing “environment files” in the <code>assets/</code> directory. The file <code>SDL_BGI_RES</code>, containing the string <code>VGA</code>, will have the same effect as the environment variable <code>SDL_BGI_RES</code>. The same holds for <code>SDL_BGI_PALETTE</code>, value <code>BGI</code>. Files must exist at compile time.</p>
+<h2 id="caveats">Caveats</h2>
+<p>SDL2 mutex support is not available in current releases of Emscripten. Hence, all references to mutex-related functions in <code>SDL_bgi.c</code> are excluded from compilation. For example:</p>
+<pre><code>#ifndef __EMSCRIPTEN__
+static SDL_mutex
+  *bgi_update_mutex = NULL;
+#endif</code></pre>
+<p>As a result, automatic refresh is not available.</p>
+<p>Programs running in fullscreen mode need keyboard input to toggle fullscreen mode in the browser.</p>

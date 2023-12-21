@@ -1,0 +1,3319 @@
+% sdl_bgi-quickref.tex
+%
+% Guido Gonzato, PhD
+% December 12, 2022
+
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx}
+\thispagestyle{empty}
+\usepackage{color}
+\usepackage{libertine}
+\renewcommand{\ttdefault}{cmtt}
+\usepackage{upquote}
+\usepackage{alltt}
+\usepackage{framed}
+\usepackage{setspace}
+\usepackage[margin=3cm]{geometry}
+\usepackage[kerning=true, tracking=true]{microtype}
+\usepackage[colorlinks,urlcolor=blue]{hyperref}
+\urlstyle{same}
+\usepackage[toc]{multitoc}
+\renewcommand*{\multicolumntoc}{2}
+
+\frenchspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+
+\newcommand{\version}{3.0.0}        % !!! <<<=== Change here !!!
+
+\newcommand{\ntt}[1]{\texttt{\textls[-40]{#1}}}
+
+\newcommand{\V}{\ntt{void}}      % void
+\newcommand{\I}{\ntt{int}}       % int
+\newcommand{\Ue}{\ntt{Uint8}}    % Uint8
+\newcommand{\Ut}{\ntt{Uint32}}   % Uint32
+\newcommand{\C}{\ntt{char *}}    % char *
+\newcommand{\fn}[1]{\ntt{#1}}    % function
+\newcommand{\tp}[1]{\ntt{#1}}    % Python type
+\newcommand{\p}[1]{\emph{\ntt{#1}}} % parameter
+\newcommand{\F}[1]{\ntt{#1}}     % file
+\newcommand{\T}[1]{\ntt{#1}}     % constant
+\newcommand{\file}[1]{\ntt{#1}}  % file name
+
+\newcommand{\SDLbgi}{\texttt{SDL\_bgi}}
+
+\newcommand{\Clogo}{\raisebox{-.25\height}%
+{\includegraphics[width=0.4cm]{C.png}~}}
+
+\newcommand{\Plogo}{\raisebox{-.25\height}%
+{\includegraphics[width=0.4cm]{Python.png}~}}
+
+\definecolor{defaultshadecolor}{rgb}{0.85,0.85,1}
+\definecolor{shadecolor}{rgb}{0.85,0.85,1}
+\definecolor{gray}{rgb}{0.7,0.7,0.7}
+\definecolor{charcolor}{rgb}{1,0.85,0.85}
+\definecolor{lightred}{rgb}{1,0.7,0.7}
+\definecolor{darkblue}{rgb}{0,0,0.5}
+\definecolor{darkred}{rgb}{0.75,0,0}
+
+\newenvironment{bgi}
+{ % beg def
+  \begin{snugshade}
+}
+{ % end def
+  \end{snugshade}
+}
+
+% =====
+
+\begin{document}
+
+\title{\SDLbgi{} \version{} Quick Reference}
+
+
+\author{Guido Gonzato, PhD}
+
+\date{\today}
+
+\maketitle
+
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{SDL_bgi_logo.png}
+\end{center}
+
+{\small \tableofcontents}
+
+% =====
+
+\section{Introduction to \SDLbgi}
+
+\href{https://sdl-bgi.sourceforge.io}{\SDLbgi} is a graphics library
+(\ntt{GRAPHICS.H}) for C, C++, WebAssembly, and Python.
+
+In more detail: \SDLbgi{} is a multiplatform, fast, SDL2-based
+implementation of BGI written in C. BGI, the
+\href{https://en.wikipedia.org/wiki/Borland_Graphics_Interface}
+{Borland Graphics Interface} also known as \T{GRAPHICS.H}, was a
+graphics library provided by Borland Turbo C / Borland C++ compilers
+for MS-DOS (pre-Windows era!). BGI was very popular in the late
+eighties--early nineties of the last century, and it became the
+\emph{de facto} standard for computer graphics. It is still widely
+used in colleges and universities in India.
+
+\SDLbgi{} aims to provide a modern implementation of BGI and replace
+the old DOS-based compilers, that are tricky to run on modern
+operating systems. However, \SDLbgi{} is not just a BGI clone; it is a
+larger and more powerful superset. It provides many extensions for
+ARGB colours, multiple windows, bitmap and vector fonts, and mouse
+support. \SDLbgi{} implements nearly all extensions provided by
+another popular BGI implementation,
+\href{https://winbgim.codecutter.org/}{WinBGIm}, and adds several
+more.
+
+\SDLbgi{} is one of the easiest libraries to do graphics programming.
+It is much simpler to use than plain SDL2, OpenGL and the like;
+obviously, it's also less complete. Teachers may find \SDLbgi{} a
+useful tool for introductory computer graphics courses.
+
+This manual provides a quick reference to \SDLbgi{} functions. For 
+more complete explanations and usage examples, please see the
+demo and test files in the source archive.
+
+% -----
+
+\subsection{Sample Programs}
+
+This is a minimal program written in C that creates a window and draws
+1000 random lines:
+
+\begin{small}
+\begin{spacing}{0.9}
+\begin{verbatim}
+#include <graphics.h>
+
+int main (int argc, char *argv[])
+{
+  int i, gd = DETECT, gm;
+  initgraph (&gd, &gm, ""); // default: 800 x 600
+  setbkcolor (BLACK);
+  cleardevice ();
+  outtextxy (0, 0, "Drawing 1000 lines...");
+  for (i = 0; i < 1000; i++) {
+    setcolor (1 + random (MAXCOLORS));
+    line (random(getmaxx()), random(getmaxy()),
+    random (getmaxx()), random(getmaxy()) );
+  }
+  getch ();
+  closegraph ();
+  return 0;
+}
+\end{verbatim}
+\end{spacing}
+\end{small}
+
+The program includes the header file \F{graphics.h}, which in turn
+includes \F{SDL\_bgi.h} that contains all necessary definitions.
+\fn{initgraph()} creates a window; from this point on, graphics
+functions can be called. \fn{closegraph()} closes the window. The
+program can also be turned to WebAssembly and run in a web browser;
+please find compilation details in file \file{using.md}.
+
+The above program can be easily rewritten in Python:
+
+\begin{small}
+\begin{spacing}{0.9}
+\begin{verbatim}
+from sdl_bgi import *
+
+gd, gm = DETECT, 0
+initgraph (gd, gm, "")  # default: 800 x 600
+setbkcolor (BLACK)
+cleardevice ()
+outtextxy (0, 0, "Drawing 1000 lines...")
+
+for i in range (1000):
+    setcolor (1 + random (MAXCOLORS))
+    line (random (getmaxx ()), random (getmaxy ()),
+          random (getmaxx ()), random (getmaxy ()))
+
+getch ()
+closegraph ()
+\end{verbatim}
+\end{spacing}
+\end{small}
+
+The program imports definitions from the \F{sdl\_bgi.py} module. As
+you can see, the syntax of Python functions closely resembles that of
+corresponding C functions. Some syntax differences exist, though; they
+are explained in Section~\ref{sec:python}.
+
+% -----
+
+\subsection{The Graphics Environment}
+
+Graphics must be initialised using \fn{initgraph()} or
+\fn{initwindow()}; one or more windows can be created. Only one of
+them is active, i.e.\ being drawn on, at any given moment.
+
+Within a window, pixel coordinates range from the upper left corner at
+(0, 0) to the lower right corner at (\fn{get\-maxx()},
+\fn{getmaxy()}).
+
+Some graphic functions set the coordinates of the last drawing
+position, defined as CP (Current Pointer).
+
+At any given moment, a foreground, background and fill colour, line
+style, line thickness, and fill pattern are defined. These parameters
+are used by functions like \fn{line()} or \fn{floodfill()}.
+
+Line drawing functions can perform binary operations between plotted
+pixels and the background (XOR, OR, AND, NOT); please see
+\fn{setwritemode()}.
+
+A viewport (subwindow) may also be defined, with or without clipping.
+
+In addition to the visualised window, hidden ones (``pages'') can be
+defined; please see \fn{setactivepage()} and \fn{setvisualpage()}.
+
+BGI uses its own fonts; system fonts are not available.
+
+
+% -----
+
+\subsection{Getting Help}
+
+The \ntt{graphics} man page is available for GNU/Linux, macOS, and
+MSYS2 platforms.
+
+In Python, you can get help on any function using one of the following
+commands:
+
+\begin{small}
+\begin{spacing}{0.9}
+\begin{verbatim}
+>>> from sdl_bgi import *
+>>> help (initgraph)
+Help on function initgraph in module sdl_bgi:
+
+initgraph(graphdriver, graphmode, pathtodriver)
+    Initializes the graphics system. Use initgraph (0, 0, "")
+    for default settings.
+>>> # or:
+>>> print (initgraph.__doc__)
+
+    Initializes the graphics system. Use initgraph (0, 0, "")
+    for default settings.
+>>>
+\end{verbatim}
+\end{spacing}
+\end{small}
+
+% -----
+
+\subsection{Definitions}
+
+C programs must include definitions from header file \F{SDL\_bgi.h}:
+
+\begin{footnotesize}
+\begin{spacing}{0.8}
+\begin{verbatim}
+#ifndef _SDL_BGI_H
+#define _SDL_BGI_H
+
+#ifndef __GRAPHICS_H
+#define __GRAPHICS_H
+
+// SDL2 stuff
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_mouse.h>
+#include <stdio.h>   // for fprintf()
+#include <stdlib.h>  // for exit(), calloc()
+#include <math.h>    // for sin(), cos()
+#include <string.h>  // for strlen(), memcpy()
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#define SDL_BGI_VERSION 2.6.0
+
+enum { NOPE, YEAH } ;
+#define BGI_WINTITLE_LEN 512 // more than enough
+
+// number of concurrent windows that can be created
+
+#define NUM_BGI_WIN 16
+
+// everything gets drawn here
+
+extern SDL_Window   *bgi_window;
+extern SDL_Renderer *bgi_renderer;
+extern SDL_Texture  *bgi_texture;
+extern Uint32        PALETTE_SIZE;
+
+// available visual pages
+
+#define VPAGES 4
+
+// BGI fonts
+
+enum {
+  DEFAULT_FONT,      // 8x8 bitmap
+  TRIPLEX_FONT,      // trip.h
+  SMALL_FONT,        // litt.h
+  SANS_SERIF_FONT,   // sans.h
+  GOTHIC_FONT,       // goth.h
+  SCRIPT_FONT,       // scri.h
+  SIMPLEX_FONT,      // simp.h
+  TRIPLEX_SCR_FONT,  // tscr.h
+  COMPLEX_FONT,      // lcom.h
+  EUROPEAN_FONT,     // euro.h
+  BOLD_FONT,         // bold.h
+  LAST_SPEC_FONT
+};
+
+enum { HORIZ_DIR, VERT_DIR };
+
+#define USER_CHAR_SIZE 0
+
+enum {
+  LEFT_TEXT, CENTER_TEXT, RIGHT_TEXT,
+  BOTTOM_TEXT = 0, TOP_TEXT = 2
+};
+
+// BGI colours, including CGA and EGA palettes
+
+enum {
+  BLACK        = 0,                         EGA_BLACK        = 0,
+  BLUE         = 1,                         EGA_BLUE         = 1,
+  GREEN        = 2,  CGA_GREEN        = 2,  EGA_GREEN        = 2,
+  CYAN         = 3,  CGA_CYAN         = 3,  EGA_CYAN         = 3,
+  RED          = 4,  CGA_RED          = 4,  EGA_RED          = 4,
+  MAGENTA      = 5,  CGA_MAGENTA      = 5,  EGA_MAGENTA      = 5,
+  BROWN        = 6,  CGA_BROWN        = 6,  EGA_BROWN        = 6,
+  LIGHTGRAY    = 7,  CGA_LIGHTGRAY    = 7,  EGA_LIGHTGRAY    = 7,
+  DARKGRAY     = 8,                         EGA_DARKGRAY     = 8,
+  LIGHTBLUE    = 9,                         EGA_LIGHTBLUE    = 9,
+  LIGHTGREEN   = 10, CGA_LIGHTGREEN   = 10, EGA_LIGHTGREEN   = 10,
+  LIGHTCYAN    = 11, CGA_LIGHTCYAN    = 11, EGA_LIGHTCYAN    = 11,
+  LIGHTRED     = 12, CGA_LIGHTRED     = 12, EGA_LIGHTRED     = 12,
+  LIGHTMAGENTA = 13, CGA_LIGHTMAGENTA = 13, EGA_LIGHTMAGENTA = 13,
+  YELLOW       = 14, CGA_YELLOW       = 14, EGA_YELLOW       = 14,
+  WHITE        = 15, CGA_WHITE        = 15, EGA_WHITE        = 15,
+  MAXCOLORS    = 15
+};
+
+// ARGB colours, set by COLOR (), COLOR32 (), and RGBPALETTE ()
+
+enum {
+  ARGB_FG_COL   = 16,
+  ARGB_BG_COL   = 17,
+  ARGB_FILL_COL = 18,
+  ARGB_TMP_COL  = 19,
+  TMP_COLORS    = 4
+};
+
+// line style, thickness, and drawing mode
+
+enum { NORM_WIDTH = 1, THICK_WIDTH = 3 };
+
+enum { SOLID_LINE, DOTTED_LINE, CENTER_LINE, DASHED_LINE, USERBIT_LINE };
+
+enum { COPY_PUT, XOR_PUT, OR_PUT, AND_PUT, NOT_PUT };
+
+// fill styles
+
+enum {
+  EMPTY_FILL,       // fills area in background color
+  SOLID_FILL,       // fills area in solid fill color
+  LINE_FILL,        // --- fill
+  LTSLASH_FILL,     // /// fill
+  SLASH_FILL,       // /// fill with thick lines
+  BKSLASH_FILL,     // \\\ fill with thick lines
+  LTBKSLASH_FILL,   // \\\ fill
+  HATCH_FILL,       // light hatch fill
+  XHATCH_FILL,      // heavy cross hatch fill
+  INTERLEAVE_FILL,  // interleaving line fill
+  WIDE_DOT_FILL,    // Widely spaced dot fill
+  CLOSE_DOT_FILL,   // Closely spaced dot fill
+  USER_FILL         // user defined fill
+};
+
+// mouse events - compatible with WinBGIm
+
+#define WM_MOUSEMOVE       SDL_MOUSEMOTION
+
+#define WM_LBUTTONDOWN     SDL_BUTTON_LEFT
+#define WM_LBUTTONUP       SDL_MOUSEBUTTONUP   + SDL_BUTTON_LEFT
+#define WM_LBUTTONDBLCLK   SDL_MOUSEBUTTONDOWN + SDL_BUTTON_LEFT + 2
+
+#define WM_MBUTTONDOWN     SDL_BUTTON_MIDDLE
+#define WM_MBUTTONUP       SDL_MOUSEBUTTONUP   + 10*SDL_BUTTON_MIDDLE
+#define WM_MBUTTONDBLCLK   SDL_MOUSEBUTTONDOWN + 10*SDL_BUTTON_MIDDLE + 2
+
+#define WM_RBUTTONDOWN     SDL_BUTTON_RIGHT
+#define WM_RBUTTONUP       SDL_MOUSEBUTTONUP   + 20*SDL_BUTTON_RIGHT
+#define WM_RBUTTONDBLCLK   SDL_MOUSEBUTTONDOWN + 20*SDL_BUTTON_RIGHT + 2
+
+#define WM_WHEEL           SDL_MOUSEWHEEL
+#define WM_WHEELUP         SDL_BUTTON_RIGHT + 1
+#define WM_WHEELDOWN       SDL_BUTTON_RIGHT + 2
+
+// keys
+#define KEY_HOME        SDLK_HOME
+#define KEY_LEFT        SDLK_LEFT
+#define KEY_UP          SDLK_UP
+#define KEY_RIGHT       SDLK_RIGHT
+#define KEY_DOWN        SDLK_DOWN
+#define KEY_PGUP        SDLK_PAGEUP
+#define KEY_PGDN        SDLK_PAGEDOWN
+#define KEY_END         SDLK_END
+#define KEY_INSERT      SDLK_INSERT
+#define KEY_DELETE      SDLK_DELETE
+#define KEY_F1          SDLK_F1
+#define KEY_F2          SDLK_F2
+#define KEY_F3          SDLK_F3
+#define KEY_F4          SDLK_F4
+#define KEY_F5          SDLK_F5
+#define KEY_F6          SDLK_F6
+#define KEY_F7          SDLK_F7
+#define KEY_F8          SDLK_F8
+#define KEY_F9          SDLK_F9
+#define KEY_F10         SDLK_F10
+#define KEY_F11         SDLK_F11
+#define KEY_F12         SDLK_F12
+#define KEY_CAPSLOCK    SDLK_CAPSLOCK
+#define KEY_LEFT_CTRL   SDLK_LCTRL
+#define KEY_RIGHT_CTRL  SDLK_RCTRL
+#define KEY_LEFT_SHIFT  SDLK_LSHIFT
+#define KEY_RIGHT_SHIFT SDLK_RSHIFT
+#define KEY_LEFT_ALT    SDLK_LALT
+#define KEY_RIGHT_ALT   SDLK_RALT
+#define KEY_ALT_GR      SDLK_MODE
+#define KEY_LGUI        SDLK_LGUI
+#define KEY_RGUI        SDLK_RGUI
+#define KEY_MENU        SDLK_MENU
+#define KEY_TAB         SDLK_TAB
+#define KEY_BS          SDLK_BACKSPACE
+#define KEY_RET         SDLK_RETURN
+#define KEY_PAUSE       SDLK_PAUSE
+#define KEY_SCR_LOCK    SDLK_SCROLLOCK
+#define KEY_ESC         SDLK_ESCAPE
+
+#define QUIT            SDL_QUIT
+
+// graphics modes. Expanded from the original GRAPHICS.H
+
+enum {
+  DETECT = -1,
+  SDL = 0,
+  // all modes @ 320x200
+  SDL_320x200 = 1, SDL_CGALO = 1, CGA = 1, CGAC0 = 1, CGAC1 = 1,
+  CGAC2 = 1, CGAC3 = 1, MCGAC0 = 1, MCGAC1 = 1, MCGAC2 = 1,
+  MCGAC3 = 1, ATT400C0 = 1, ATT400C1 = 1, ATT400C2 = 1, ATT400C3 = 1,
+  // all modes @ 640x200
+  SDL_640x200 = 2, SDL_CGAHI = 2, CGAHI = 2, MCGAMED = 2,
+  EGALO = 2, EGA64LO = 2,
+  // all modes @ 640x350
+  SDL_640x350 = 3, SDL_EGA = 3, EGA = 3, EGAHI = 3,
+  EGA64HI = 3, EGAMONOHI = 3,
+  // all modes @ 640x480
+  SDL_640x480 = 4, SDL_VGA = 4, VGA = 4, MCGAHI = 4, VGAHI = 4,
+  IBM8514LO = 4,
+  // all modes @ 720x348
+  SDL_720x348 = 5, SDL_HERC = 5,
+  // all modes @ 720x350
+  SDL_720x350 = 6, SDL_PC3270 = 6, HERCMONOHI = 6,
+  // all modes @ 800x600
+  SDL_800x600 = 7, SDL_SVGALO = 7, SVGA = 7,
+  // all modes @ 1024x768
+  SDL_1024x768 = 8, SDL_SVGAMED1 = 8,
+  // all modes @ 1152x900
+  SDL_1152x900 = 9, SDL_SVGAMED2 = 9,
+  // all modes @ 1280x1024
+  SDL_1280x1024 = 10, SDL_SVGAHI = 10,
+  // all modes @ 1366x768
+  SDL_1366x768 = 11, SDL_WXGA = 11,
+  // other
+  SDL_USER = 12, SDL_FULLSCREEN = 13
+};
+
+// error messages
+enum graphics_errors {
+  grOk               =   0,
+  grNoInitGraph      =  -1,
+  grNotDetected      =  -2,
+  grFileNotFound     =  -3,
+  grInvalidDriver    =  -4,
+  grNoLoadMem        =  -5,
+  grNoScanMem        =  -6,
+  grNoFloodMem       =  -7,
+  grFontNotFound     =  -8,
+  grNoFontMem        =  -9,
+  grInvalidMode      = -10,
+  grError            = -11,
+  grIOerror          = -12,
+  grInvalidFont      = -13,
+  grInvalidFontNum   = -14,
+  grInvalidVersion   = -18
+};
+
+// libXbgi compatibility
+
+#define X11_CGALO       SDL_CGALO
+#define X11_CGAHI       SDL_CGAHI
+#define X11_EGA         SDL_EGA
+#define X11             SDL
+#define X11_VGA         SDL_VGA
+#define X11_640x480     SDL_640x480
+#define X11_HERC        SDL_HERC
+#define X11_PC3270      SDL_PC3270
+#define X11_SVGALO      SDL_SVGALO
+#define X11_800x600     SDL_800x600
+#define X11_SVGAMED1    SDL_SVGAMED1
+#define X11_1024x768    SDL_1024x768
+#define X11_SVGAMED2    SDL_SVGAMED2
+#define X11_1152x900    SDL_1152x900
+#define X11_SVGAHI      SDL_SVGAHI
+#define X11_1280x1024   SDL_1280x1024
+#define X11_WXGA        SDL_WXGA
+#define X11_1366x768    SDL_1366x768
+#define X11_USER        SDL_USER
+#define X11_FULLSCREEN  SDL_FULLSCREEN
+
+// structs
+
+struct arccoordstype {
+  int x;
+  int y;
+  int xstart;
+  int ystart;
+  int xend;
+  int yend;
+};
+
+struct date {
+  int da_year;
+  int da_day;
+  int da_mon;
+};
+
+struct fillsettingstype {
+  int pattern;
+  int color;
+};
+
+struct linesettingstype {
+  int linestyle;
+  unsigned int upattern;
+  int thickness;
+};
+
+struct palettetype {
+  unsigned char size;
+  Uint32 colors[MAXCOLORS + 1];
+};
+
+// SDL_bgi extension
+struct rgbpalettetype {
+  Uint32 size;
+  Uint32 *colors;
+};
+
+struct textsettingstype {
+  int font;
+  int direction;
+  int charsize;
+  int horiz;
+  int vert;
+};
+
+struct viewporttype {
+  int left;
+  int top;
+  int right;
+  int bottom;
+  int clip;
+};
+\end{verbatim}
+\end{spacing}
+\end{footnotesize}
+
+Python bindings to \SDLbgi{} are implemented via
+\href{https://docs.python.org/3/library/ctypes.html}{ctypes}. Programs
+must import definitions from the \T{sdl\_bgi.py} module:
+
+\begin{footnotesize}
+\begin{spacing}{0.8}
+\begin{verbatim}
+from ctypes       import *
+from sysconfig    import get_platform
+from random       import randint
+
+# try to load the SDL_bgi library
+
+if get_platform () == 'win-amd64':       # Windows, IDLE
+    sdlbgilib = ".\SDL_bgi.dll"
+elif get_platform () == 'mingw_x86_64':  # Windows, MSYS2/Mingw64
+    sdlbgilib = '/msys64/mingw64/bin/SDL_bgi.dll'
+else: # GNU/Linux, macOS
+    sdlbgilib = 'libSDL_bgi.so'
+
+try:
+    sb = CDLL (sdlbgilib)
+except:
+    print ("The sdl_bgi.py module needs the SDL_bgi library binary;")
+    print ("please get it from https://sdl-bgi.sourceforge.io")
+    print ("Exiting.")
+    quit ()
+
+SDL_BGI_VERSION = "3.0.0"
+NOPE = False
+YEAH = True
+BGI_WINTITLE_LEN = 512
+
+# number of concurrent windows that can be created
+NUM_BGI_WIN = 16
+
+VPAGES = 4
+
+# BGI fonts
+
+DEFAULT_FONT     = 0   # 8x8 bitmap
+TRIPLEX_FONT     = 1   # trip.h
+SMALL_FONT       = 2   # litt.h
+SANS_SERIF_FONT  = 3   # sans.h
+GOTHIC_FONT      = 4   # goth.h
+SCRIPT_FONT      = 5   # scri.h
+SIMPLEX_FONT     = 6   # simp.h
+TRIPLEX_SCR_FONT = 7   # tscr.h
+COMPLEX_FONT     = 8   # lcom.h
+EUROPEAN_FONT    = 9   # euro.h
+BOLD_FONT        = 10  # bold.h
+LAST_SPEC_FONT   = 11
+
+HORIZ_DIR = 0
+VERT_DIR  = 1
+
+USER_CHAR_SIZE = 0
+
+LEFT_TEXT   = 0
+CENTER_TEXT = 1
+RIGHT_TEXT  = 2
+BOTTOM_TEXT = 0
+TOP_TEXT    = 2
+
+# BGI colours
+
+BLACK        = 0
+BLUE         = 1
+GREEN        = 2
+CYAN         = 3
+RED          = 4
+MAGENTA      = 5
+BROWN        = 6 
+LIGHTGRAY    = 7  
+DARKGRAY     = 8
+LIGHTBLUE    = 9  
+LIGHTGREEN   = 10
+LIGHTCYAN    = 11
+LIGHTRED     = 12
+LIGHTMAGENTA = 13 
+YELLOW       = 14
+WHITE        = 15
+MAXCOLORS    = 15
+
+# ARGB colours set by COLOR () COLOR32 () and RGBPALETTE ()
+
+ARGB_FG_COL   = 16
+ARGB_BG_COL   = 17
+ARGB_FILL_COL = 18
+ARGB_TMP_COL  = 19
+TMP_COLORS    = 4
+
+# line style thickness and drawing mode
+
+NORM_WIDTH  = 1
+THICK_WIDTH = 3
+
+SOLID_LINE   = 0
+DOTTED_LINE  = 1
+CENTER_LINE  = 2
+DASHED_LINE  = 3
+USERBIT_LINE = 4
+
+COPY_PUT = 0
+XOR_PUT  = 1
+OR_PUT   = 2
+AND_PUT  = 3
+NOT_PUT  = 4
+
+# fill styles
+
+EMPTY_FILL      = 0   # fills area in background color
+SOLID_FILL      = 1   # fills area in solid fill color
+LINE_FILL       = 2   # --- fill
+LTSLASH_FILL    = 3   # /// fill
+SLASH_FILL      = 4   # /// fill with thick lines
+BKSLASH_FILL    = 5   # \\\ fill with thick lines
+LTBKSLASH_FILL  = 6   # \\\ fill
+HATCH_FILL      = 7   # light hatch fill
+XHATCH_FILL     = 8   # heavy cross hatch fill
+INTERLEAVE_FILL = 9   # interleaving line fill
+WIDE_DOT_FILL   = 10  # Widely spaced dot fill
+CLOSE_DOT_FILL  = 11  # Closely spaced dot fill
+USER_FILL       = 12  # user defined fill
+
+# window properties
+SDL_WINDOW_FULLSCREEN = 0x00000001
+SDL_BLENDMODE_NONE    = 0x00000000
+SDL_BLENDMODE_BLEND   = 0x00000001
+
+# mouse events - compatible with WinBGIm
+
+SDL_BUTTON_LEFT      = 1
+SDL_BUTTON_MIDDLE    = 2
+SDL_BUTTON_RIGHT     = 3
+SDL_MOUSEMOTION      = 0x400  # from SDL_events.h
+SDL_MOUSEBUTTONDOWN  = 0x401
+SDL_MOUSEBUTTONUP    = 0x402
+SDL_MOUSEWHEEL       = 0x403
+
+WM_MOUSEMOVE       = SDL_MOUSEMOTION
+WM_LBUTTONDOWN     = SDL_BUTTON_LEFT # from SDL_mouse.h
+WM_LBUTTONUP       = SDL_MOUSEBUTTONUP   + SDL_BUTTON_LEFT
+WM_LBUTTONDBLCLK   = SDL_MOUSEBUTTONDOWN + SDL_BUTTON_LEFT + 2
+
+WM_MBUTTONDOWN     = SDL_BUTTON_MIDDLE
+WM_MBUTTONUP       = SDL_MOUSEBUTTONUP   + 10*SDL_BUTTON_MIDDLE
+WM_MBUTTONDBLCLK   = SDL_MOUSEBUTTONDOWN + 10*SDL_BUTTON_MIDDLE + 2
+
+WM_RBUTTONDOWN     = SDL_BUTTON_RIGHT
+WM_RBUTTONUP       = SDL_MOUSEBUTTONUP   + 20*SDL_BUTTON_RIGHT
+WM_RBUTTONDBLCLK   = SDL_MOUSEBUTTONDOWN + 20*SDL_BUTTON_RIGHT + 2
+
+WM_WHEEL           = SDL_MOUSEWHEEL
+WM_WHEELUP         = SDL_BUTTON_RIGHT + 1
+WM_WHEELDOWN       = SDL_BUTTON_RIGHT + 2
+
+# keys
+
+SDL_SCANCODE_TO_KEYCODE = lambda key: key | (1 << 30)
+# 30 = SDLK_SCANCODE_MASK
+
+KEY_HOME        = SDL_SCANCODE_TO_KEYCODE (74) # from SDL_scancode.h
+KEY_LEFT        = SDL_SCANCODE_TO_KEYCODE (80)
+KEY_UP          = SDL_SCANCODE_TO_KEYCODE (82)
+KEY_RIGHT       = SDL_SCANCODE_TO_KEYCODE (79)
+KEY_DOWN        = SDL_SCANCODE_TO_KEYCODE (81)
+KEY_PGUP        = SDL_SCANCODE_TO_KEYCODE (75)
+KEY_PGDN        = SDL_SCANCODE_TO_KEYCODE (78)
+KEY_END         = SDL_SCANCODE_TO_KEYCODE (77)
+KEY_INSERT      = SDL_SCANCODE_TO_KEYCODE (73)
+KEY_DELETE      = SDL_SCANCODE_TO_KEYCODE (76)
+KEY_F1          = SDL_SCANCODE_TO_KEYCODE (58)
+KEY_F2          = SDL_SCANCODE_TO_KEYCODE (59)
+KEY_F3          = SDL_SCANCODE_TO_KEYCODE (60)
+KEY_F4          = SDL_SCANCODE_TO_KEYCODE (61)
+KEY_F5          = SDL_SCANCODE_TO_KEYCODE (62)
+KEY_F6          = SDL_SCANCODE_TO_KEYCODE (63)
+KEY_F7          = SDL_SCANCODE_TO_KEYCODE (64)
+KEY_F8          = SDL_SCANCODE_TO_KEYCODE (65)
+KEY_F9          = SDL_SCANCODE_TO_KEYCODE (66)
+KEY_F10         = SDL_SCANCODE_TO_KEYCODE (67)
+KEY_F11         = SDL_SCANCODE_TO_KEYCODE (68)
+KEY_F12         = SDL_SCANCODE_TO_KEYCODE (69)
+KEY_CAPSLOCK    = SDL_SCANCODE_TO_KEYCODE (57)
+KEY_LEFT_CTRL   = SDL_SCANCODE_TO_KEYCODE (224)
+KEY_RIGHT_CTRL  = SDL_SCANCODE_TO_KEYCODE (228)
+KEY_LEFT_SHIFT  = SDL_SCANCODE_TO_KEYCODE (225)
+KEY_RIGHT_SHIFT = SDL_SCANCODE_TO_KEYCODE (229)
+KEY_LEFT_ALT    = SDL_SCANCODE_TO_KEYCODE (226)
+KEY_RIGHT_ALT   = SDL_SCANCODE_TO_KEYCODE (230)
+KEY_ALT_GR      = SDL_SCANCODE_TO_KEYCODE (230)
+KEY_LGUI        = SDL_SCANCODE_TO_KEYCODE (227)
+KEY_RGUI        = SDL_SCANCODE_TO_KEYCODE (231)
+KEY_MENU        = SDL_SCANCODE_TO_KEYCODE (118)
+KEY_TAB         = SDL_SCANCODE_TO_KEYCODE (43)
+KEY_BS          = SDL_SCANCODE_TO_KEYCODE (42)
+KEY_RET         = SDL_SCANCODE_TO_KEYCODE (40)
+KEY_PAUSE       = SDL_SCANCODE_TO_KEYCODE (72)
+KEY_SCR_LOCK    = SDL_SCANCODE_TO_KEYCODE (71)
+KEY_ESC         = SDL_SCANCODE_TO_KEYCODE (41)
+
+SDL_KEYDOWN     = 0x300
+SDL_QUIT        = 0x100
+QUIT            = SDL_QUIT
+
+# graphics modes. Expanded from the original GRAPHICS.H
+
+DETECT         = -1
+SDL            = 0
+SDL_320x200    = 1
+CGA            = 1 
+SDL_640x200    = 2
+SDL_640x350    = 3
+SDL_EGA        = 3
+EGA            = 3
+SDL_640x480    = 4
+SDL_VGA        = 4
+VGA            = 4
+SDL_720x348    = 5
+SDL_720x350    = 6
+SDL_800x600    = 7
+SVGA           = 7
+SDL_1024x768   = 8
+SDL_1152x900   = 9
+SDL_1280x1024  = 10
+SDL_1366x768   = 11
+SDL_USER       = 12
+SDL_FULLSCREEN = 13
+
+# error messages
+
+grOk               =   0
+grNoInitGraph      =  -1
+grNotDetected      =  -2
+grFileNotFound     =  -3
+grInvalidDriver    =  -4
+grNoLoadMem        =  -5
+grNoScanMem        =  -6
+grNoFloodMem       =  -7
+grFontNotFound     =  -8
+grNoFontMem        =  -9
+grInvalidMode      = -10
+grError            = -11
+grIOerror          = -12
+grInvalidFont      = -13
+grInvalidFontNum   = -14
+grInvalidVersion   = -18
+
+# C structs, implemented as classes
+
+class arccoordstype (Structure):
+    _fields_ = [ ("x", c_int),
+                 ("y", c_int),
+                 ("xstart", c_int),
+                 ("ystart", c_int),
+                 ("xend", c_int),
+                 ("yend", c_int) ]
+
+class date (Structure):
+    _fields_ = [ ("da_year", c_int),
+                 ("da_day", c_int),
+                 ("da_mon", c_int) ]
+
+class fillsettingstype (Structure):
+    _fields_ = [ ("pattern", c_int),
+                 ("color", c_int) ]
+
+class linesettingstype (Structure):
+    _fields_ = [ ("linestyle", c_int),
+                 ("upattern", c_uint),
+                 ("thickness", c_uint) ]
+
+class palettetype (Structure):
+    _fields_ = [ ("size", c_ubyte),
+                 ("colors", c_char * (MAXCOLORS + 1)) ]
+
+# SDL_bgi extensions
+
+class rgbpalettetype (Structure):
+    _fields_ = [ ("size", c_uint),
+                 ("colors", c_char_p) ]
+
+class textsettingstype (Structure):
+    _fields_ = [ ("font", c_int),
+                 ("direction", c_int),
+                 ("charsize", c_int),
+                 ("horiz", c_int),
+                 ("vert", c_int) ]
+
+class viewporttype (Structure):
+    _fields_ = [ ("left", c_int),
+                 ("top", c_int),
+                 ("right", c_int),
+                 ("bottom", c_int),
+                 ("clip", c_int) ]
+\end{verbatim}
+\end{spacing}
+\end{footnotesize}
+
+% -----
+
+\subsection{Environment Variables}
+
+These variables only apply to C and Python programs.
+
+\T{SDL\_BGI\_RES}: when set to \T{VGA}, default resolution will be 640
+$\times$ 480 instead of default 800 $\times$ 600. Please see
+\fn{initgraph()} (page \pageref{sec:initgraph}) for details.
+
+\T{SDL\_BGI\_RATE}: when set to \T{auto}, automatic screen refresh
+will be performed. Please see \fn{initgraph()} (page
+\pageref{sec:initgraph}) for details.
+
+\T{SDL\_BGI\_PALETTE}: when set to \T{BGI}, the first 16 colours will
+use the same RGB values as Turbo C 2.01. Please see
+\fn{initpalette()} (page \pageref{sec:initpalette}) for details.
+
+WebAssembly programs can use ``environment files'', which are text
+files with the same name as the corresponding environment variable.
+These file contain a string containing the desired value. Please see
+examples in \file{test/assets/}.
+
+% -----
+
+\subsection{Colours}
+
+\SDLbgi{} provides two palettes that can be used at the same time.
+
+The default BGI palette includes 16 named colours (\T{BLACK}{\ldots}
+\T{WHITE}); functions \fn{getbkco\-lor()}, \fn{getcolor()},
+\fn{putpixel()}, \fn{setbkcolor()} \fn{setbkcolor()},
+\fn{setco\-lor()}, \fn{set\-fill\-pat\-tern()}, \fn{setfillstyle()}
+and \fn{setpalette()} use this palette by default.
+
+An extended ARGB palette of \T{PALETTE\_SIZE} additional colours can
+be created and accessed using functions \fn{getrgbpalette()},
+\fn{setallpalette()}, \fn{setbkrgbcolor()}, \fn{set\-rbg\-color()} and
+\fn{setrbgpalette()}. These functions are functionally equivalent to
+their standard BGI counterparts. \T{PALETTE\_SIZE} is 4096 by default;
+the palette can be resized using \fn{resizepalette()}.
+
+Standard BGI functions can also use ARGB colours using \fn{COLOR()},
+\fn{COLOR32()}, and \fn{RGBPALETTE()} as colour parameter; see
+sample programs in directory \file{test/}.
+
+At any given moment, either the BGI or the ARGB palette is being used.
+Functions \T{IS\_BGI\_COLOR()} and \T{IS\_RGB\_COLOR()} return 1 if
+the corresponding palette is being used. Functions with \T{*rgb*} in
+their name trigger ARGB palette mode.
+
+Constants \T{ARGB\_FG\_COL}, \T{ARGB\_BG\_COL}, \T{ARGB\_FILL\_COL},
+and \T{ARGB\_TMP\_COL} denote the fo\-reground, background, fill, and
+temporary ARGB colours that can be set with functions \fn{COLOR()},
+\fn{COLOR32()}, and \fn{RGBPALETTE()}.
+
+% -----
+
+\subsection{Fonts}
+
+\SDLbgi{} provides an 8$\times$8 bitmap font and vector fonts decoded
+from original \T{CHR} files; loading \T{CHR} fonts from disk is also
+possible. Please see \fn{settextstyle()} for details.
+
+\T{CHR} font support was added by Marco Diego Aur\'elio Mesquita.
+
+% -----
+
+\subsection{Notes for SDL2 Programmers}
+
+The following variables are declared in \F{SDL\_bgi.h}, and are
+accessible to the programmer (C/C++ only):
+
+\begin{small}
+\begin{spacing}{0.85}
+\begin{verbatim}
+SDL_Window   *bgi_window;
+SDL_Renderer *bgi_renderer;
+SDL_Texture  *bgi_texture;
+Uint32       PALETTE_SIZE;
+\end{verbatim}
+\end{spacing}
+\end{small}
+
+so they can be used by native SDL2 functions. In fact, you can use BGI
+and native SDL2 functions together, as in the following code snippet:
+
+\begin{small}
+\begin{spacing}{0.85}
+\begin{verbatim}
+SDL_Surface *bitmap;
+SDL_Texture *texture;
+...
+bitmap = SDL_LoadBMP ("picture.bmp");
+texture = SDL_CreateTextureFromSurface (bgi_renderer, bitmap);
+SDL_RenderCopy (bgi_renderer, texture, NULL, NULL);
+SDL_RenderPresent (bgi_renderer);
+...
+\end{verbatim}
+\end{spacing}
+\end{small}
+
+Please see \file{test/loadimage.c} for a complete example.
+
+% -----
+
+\subsection{Notes for Python Programmers}
+\label{sec:python}
+
+Even though the syntax of C and Python versions of \SDLbgi{} is quite
+similar, \ntt{ctypes} introduces a few minor differences in some
+cases. Please consult \file{howto\_Python.md} for further
+explanations.
+
+% -----
+
+\section{Standard BGI Graphics Functions}
+
+The following are standard BGI functions, as implemented for example
+in Turbo C. They are all prototyped in \F{SDL\_bgi.h}, and implemented
+in \F{sdl\_bgi.py}.
+
+Unless otherwise specified, graphics routines draw shapes using the
+current drawing colour, i.e.\ as specified by \fn{setcolor()}.
+
+In most cases, Python functions use the same syntax and data types as
+their C counterparts. When syntax differs, a Python template is
+provided. Variables passed by reference are implemented
+using the \T{byref()} function, provided by \T{ctypes}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{arc()}}
+\phantomsection\label{sec:arc}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{arc} (\I{} \p{x}, \I{} \p{y}, \I{} \p{stangle}, \I{}
+\p{endangle}, \I{} \p{radius});
+
+\Plogo{} \fn{arc} (\p{x}, \p{y}, \p{stangle}, \p{endangle},
+\p{radius})
+
+\end{bgi}
+
+Draws a circular arc centered at (\p{x}, \p{y}), with a radius given
+by \p{radius}, traveling from \p{stangle} to \p{endangle}. The angle
+for \fn{arc()} is measured counterclockwise, with 0 degrees at 3 o'
+clock, 90 degrees at 12 o' clock, etc.
+
+\textbf{Note}: The \p{linestyle} parameter does not affect arcs,
+circles, ellipses, or pie\-slices. Only the \p{thickness} parameter is
+used.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{bar()}}
+\phantomsection\label{sec:bar}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{bar} (\I{} \p{left}, \I{} \p{top}, \I{} \p{right},
+\I{} \p{bottom});
+
+\Plogo{} \fn{bar} (\p{left}, \p{top}, \p{right}, \p{bottom})
+\end{bgi}
+
+Draws a filled-in rectangle (bar), using the current fill colour and
+fill pattern. The bar is not outlined; to draw an outlined
+two-dimensional bar, use \fn{bar3d()} with \p{depth} equal to 0.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{bar3d()}}
+\phantomsection\label{sec:bar3d}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{bar3d} (\I{} \p{left}, \I{} \p{top}, \I{} \p{right},
+\I{} \p{bottom}, \I{} \p{depth}, \\ \I{} \p{topflag});
+
+\Plogo{} \fn{bar3d} (\p{left}, \p{top}, \p{right}, \p{bottom},
+\p{depth}, \p{topflag})
+\end{bgi}
+
+Draws a three-dimensional, filled-in rectangle (bar), using the
+current fill colour and fill pattern. The three-dimensional outline of
+the bar is drawn in the current line style and colour. The bar's
+depth, in pixels, is given by \p{depth}. If \p{topflag} is nonzero, a
+top is put on.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{circle()}}
+\phantomsection\label{sec:circle}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{circle} (\I{} \p{x}, \I{} \p{y}, \I{} \p{radius});
+
+\Plogo{} \fn{circle} (\p{x}, \p{y}, \p{radius})
+\end{bgi}
+
+Draws a circle of the given \p{radius} at (\p{x}, \p{y}).
+
+\textbf{Note}: The \p{linestyle} parameter does not affect arcs,
+circles, ellipses, or pie\-slices. Only the \p{thickness} parameter is
+used.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{cleardevice()}}
+\phantomsection\label{sec:cleardevice}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{cleardevice} (\V{});
+
+\Plogo{} \fn{cleardevice} ()
+\end{bgi}
+
+Clears the graphics screen, filling it with the current background
+colour. The CP is moved to (0, 0).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{clearviewport()}}
+\phantomsection\label{sec:clearviewport}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{clearviewport} (\V{});
+
+\Plogo{} \fn{clearviewport} ()
+\end{bgi}
+
+Clears the viewport, filling it with the current background colour.
+The CP is moved to (0, 0), relative to the viewport.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{closegraph()}}
+\phantomsection\label{sec:closegraph}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{closegraph} (\V{});
+
+\Plogo{} \fn{closegraph} ()
+\end{bgi}
+
+Closes the graphics system. In Emscripten, it closes the browser tab
+or window.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{detectgraph()}}
+\phantomsection\label{sec:detectgraph}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{detectgraph} (\I{} \p{*graphdriver}, \I{}
+\p{*graphmode});
+
+\Plogo{} \p{graphdriver}, \p{graphmode} = \tp{c\_int} (), \tp{c\_int}
+()\\
+\Plogo{} \fn{detectgraph} (\fn{byref} (\p{graphdriver}), \fn{byref}
+(\p{graphmode}))
+\end{bgi}
+
+Detects the graphics driver and default graphics mode to use; \T{SDL}
+and \T{SDL\_FULL\-SCREEN}, respectively.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{drawpoly()}}
+\phantomsection\label{sec:drawpoly}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{drawpoly} (\I{} \p{numpoints}, \I{}
+\p{*polypoints});
+
+\Plogo{} \fn{drawpoly} (\p{numpoints}, \p{polypoints});
+\end{bgi}
+
+Draws a polygon of \p{numpoints} vertices. In C, \p{polypoints} is a
+pointer to a sequence of (2 * \p{numpoints}) integers; each pair gives
+the \p{x} and \p{y} coordinate of each vertex. In Python,
+\p{polypoints} is a list.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{ellipse()}}
+\phantomsection\label{sec:ellipse}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{ellipse} (\I{} \p{x}, \I{} \p{y}, \I{} \p{stangle},
+\I{} \p{endangle}, \I{} \p{xradius}, \I{} \p{yradius});
+
+\Plogo{} \fn{ellipse} (\p{x}, \p{y}, \p{stangle}, \p{endangle},
+\p{xradius}, \p{yradius})
+\end{bgi}
+
+Draws an elliptical arc centered at (\p{x}, \p{y}), with axes given by
+\p{xradius} and \p{yradius}, traveling from \p{stangle} to
+\p{endangle}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{fillellipse()}}
+\phantomsection\label{sec:fillellipse}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{fillellipse} (\I{} \p{x}, \I{} \p{y}, \I{}
+\p{xradius}, \I{} \p{yradius});
+
+\Plogo{} \fn{fillellipse} (\p{x}, \p{y}, \p{xradius}, \p{yradius})
+\end{bgi}
+
+Draws an ellipse centered at (\p{x}, \p{y}), with axes given by
+\p{xradius} and \p{yradius}, and fills it using the current fill
+colour and fill pattern.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{fillpoly()}}
+\phantomsection\label{sec:fillpoly}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{fillpoly} (\I{} \p{numpoints}, \I{}
+\p{*polypoints});
+
+\Plogo{} \fn{fillpoly} (\p{numpoints}, \p{polypoints})
+\end{bgi}
+
+Draws a polygon of \p{numpoints} vertices and fills it using the
+current fill colour.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{floodfill()}}
+\phantomsection\label{sec:floodfill}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{floodfill} (\I{} \p{x}, \I{} \p{y}, \I{} \p{border});
+
+\Plogo{} \fn{floodfill} (\p{x}, \p{y}, \p{border})
+\end{bgi}
+
+Fills an enclosed area, starting from point (\p{x}, \p{y}) bounded by
+the \p{border} colour. The area is filled using the current fill
+colour.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getactivepage()}}
+\phantomsection\label{sec:getactivepage}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getactivepage} (\V{});
+
+\Plogo{} \fn{getactivepage} ()
+\end{bgi}
+
+Returns the active page number.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getarccoords()}}
+\phantomsection\label{sec:getarccoords}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getarccoords} (\T{struct arccoordstype}
+\p{*arccoords});
+
+\Plogo{} \p{arccoords} = \tp{arccoordstype} ()\\
+\Plogo{} \fn{getarccoords} (\fn{byref} (\p{arccoords}))
+\end{bgi}
+
+Gets the coordinates of the last call to \fn{arc()}, filling the
+\p{arccoords} struct/class.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getaspectratio()}}
+\phantomsection\label{sec:getaspectratio}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getaspectratio} (\I{} \p{*xasp}, \I{} \p{*yasp});
+
+\Plogo{} \p{xasp}, \p{yasp} = \tp{c\_int} (), \tp{c\_int} ()\\
+\Plogo{} \fn{getaspectratio} (\fn{byref} (\p{xasp}), \fn{byref} (\p{yasp}))
+\end{bgi}
+
+Retrieves the current graphics mode's aspect ratio.  \p{xasp} and
+\p{yasp} are always 10000 (i.e. pixels are square).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getbkcolor()}}
+\phantomsection\label{sec:getbkcolor}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getbkcolor} (\V{});
+
+\Plogo{} \fn{getbkcolor} ()
+\end{bgi}
+
+Returns the current background colour.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getcolor()}}
+\phantomsection\label{sec:getcolor}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getcolor} (\V{});
+
+\Plogo{} \fn{getcolor} ()
+\end{bgi}
+
+Returns the current drawing (foreground) colour in the default
+palette. If the foregroud colour was set by \fn{COLOR()},
+\fn{getcolor()} returns -1.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getdefaultpalette()}}
+\phantomsection\label{sec:getdefaultpalette}
+
+\begin{bgi}
+\Clogo{} \T{struct palettetype} \fn{*getdefaultpalette} (\V{});
+
+\Plogo{} \p{palette} = \tp{palettetype} ()\\
+\Plogo{} \fn{getdefaultpalette} (\fn{byref} (\p{palette}))
+\end{bgi}
+
+Returns the palette definition struct/class.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getdrivername()}}
+\phantomsection\label{sec:getdrivername}
+
+\begin{bgi}
+\Clogo{} \C{}\fn{getdrivername} (\V{});
+
+\Plogo{} \fn{getdrivername} ()
+\end{bgi}
+
+Returns a (pointer to a) string containing the name of the current
+graphics driver.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getfillpattern()}}
+\phantomsection\label{sec:getfillpattern}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getfillpattern} (\C{}\p{pattern});
+
+\Plogo{} \fn{getfillpattern} (\p{pattern})
+\end{bgi}
+
+Copies the user-defined fill pattern, as set by \fn{setfillpattern()},
+into the 8-byte area pointed to by \p{pattern}. In Python, \p{pattern}
+is an 8-byte string.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getfillsettings()}}
+\phantomsection\label{sec:getfillsettings}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getfillsettings} (\T{struct fillsettingstype}
+\p{*fillinfo});
+
+\Plogo{} \p{fillinfo} = \tp{fillsettingstype} ()\\
+\Plogo{} \fn{getfillsettings} (\fn{byref} (\p{fillinfo}))
+\end{bgi}
+
+Fills the \T{fillsettingstype} struct/class pointed to by \p{fillinfo}
+with information about the current fill pattern and fill colour.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getgraphmode()}}
+\phantomsection\label{sec:getgraphmode}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getgraphmode} (\V{});
+
+\Plogo{} \fn{getgraphmode} ()
+\end{bgi}
+
+Returns the current graphics mode.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getimage()}}
+\phantomsection\label{sec:getimage}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getimage} (\I{} \p{left}, \I{} \p{top}, \I{}
+\p{right}, \I{} \p{bottom}, \V{} \p{*bitmap});
+
+\Plogo{} \fn{getimage} (\p{left}, \p{top}, \p{right}, \p{bottom},
+\p{*bitmap})
+\end{bgi}
+
+Copies a bit image of the specified region into the memory pointed by
+\p{bitmap}, previously allocated with \fn{malloc (\fn{imagesize} ())}
+(C) or \fn{create\_string\_buffer (\fn {i\-ma\-ge\-si\-ze} ())}
+(Python).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getlinesettings()}}
+\phantomsection\label{sec:getlinesettings}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getlinesettings} (\T{struct linesettingstype}
+\p{*lineinfo});
+
+\Plogo{} \p{lineinfo} = \tp{linesettingstype} ()\\
+\Plogo{} \fn{getlinesettings} (\fn{byref} (\p{lineinfo}))
+\end{bgi}
+
+Fills the \tp{linesettingstype} struct/class pointed by \p{lineinfo}
+with information about the current line style, pattern, and thickness.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmaxcolor()}}
+\phantomsection\label{sec:getmaxcolor}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getmaxcolor} (\V{});
+
+\Plogo{} \fn{getmaxcolor} ()
+\end{bgi}
+
+Returns the maximum colour value available. If the default BGI palette
+is being used, it returns \T{MAXCOLORS}; otherwise (ARGB palette), it
+returns \T{PALETTE\_SIZE}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmaxmode()}}
+\phantomsection\label{sec:getmaxmode}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getmaxmode} (\V{});
+
+\Plogo{} \fn{getmaxmode} ()
+\end{bgi}
+
+Returns the maximum mode number for the current driver. In \SDLbgi,
+the default is \T{SDL\_FULLSCREEN}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmaxx()}}
+\phantomsection\label{sec:getmaxx}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getmaxx} (\V{});
+
+\Plogo{} \fn{getmaxx} ()
+\end{bgi}
+
+Returns the maximum \p{x} screen coordinate.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmaxy()}}
+\phantomsection\label{sec:getmaxy}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getmaxy} (\V{});
+
+\Plogo{} \fn{getmaxy} ()
+\end{bgi}
+
+Returns the maximum \p{y} screen coordinate.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmodename()}}
+\phantomsection\label{sec:getmodename}
+
+\begin{bgi}
+\Clogo{} \T{char*} \fn{getmodename} (\I{} \p{mode\_number});
+
+\Plogo{} \fn{getmodename} (\p{mode\_number})
+\end{bgi}
+
+Returns a (pointer to a) string containing the name of the specified
+graphics mode.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmoderange()}}
+\phantomsection\label{sec:getmoderange}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getmoderange} (\I{} \p{graphdriver}, \I{}
+\p{*lomode}, \I{} \p{*himode});
+
+\Plogo{} \p{lomode}, \p{himode} = \tp{c\_int} (), \tp{c\_int} ()\\
+\Plogo{} \fn{getmoderange} (0, \fn{byref} (\p{lomode}), \fn{byref}
+(\p{himode}))
+\end{bgi}
+
+Returns the range of valid graphics modes. The \p{graphdriver} parameter
+is ignored.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getpalette()}}
+\phantomsection\label{sec:getpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getpalette} (\T{struct palettetype} \p{*palette});
+
+\Plogo{} \p{palette} = \tp{palettetype} ()\\
+\Plogo{} \fn{getpalette} (\p{palette})
+\end{bgi}
+
+Fills the \tp{palettetype} struct/class pointed by \p{palette} with
+information about the current palette's size and colours.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getpalettesize()}}
+\phantomsection\label{sec:getpalettesize}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getpalettesize} (\V{});
+
+\Plogo{} \fn{getpalettesize} ()
+\end{bgi}
+
+Returns the size of the palette (\T{MAXCOLORS} + 1 or
+\T{MAXRGB\-COLORS} + 1).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getpixel()}}
+\phantomsection\label{sec:getpixel}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getpixel} (\I{} \p{x}, \I{} \p{y});
+
+\Plogo{} \fn{getpixel} (\p{x}, \p{y})
+\end{bgi}
+
+Returns the colour of the pixel located at (\p{x}, \p{y}).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{gettextsettings()}}
+\phantomsection\label{sec:gettextsettings}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{gettextsettings} (\T{struct textsettingstype}
+\p{*texttypeinfo});
+
+\Plogo{} \p{texttypeinfo} = \tp{textsettingstype} ()\\
+\Plogo{} \fn{gettextsettings} (\p{texttypeinfo})
+\end{bgi}
+
+Fills the \tp{textsettingstype} struct/class pointed to by
+\p{texttypeinfo} with information about the current text font,
+direction, size, and justification.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getviewsettings()}}
+\phantomsection\label{sec:getviewsettings}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getviewsettings} (\T{struct viewporttype} \p{*viewport});
+
+\Plogo{} \p{viewport} = \tp{viewporttype} ()\\
+\Plogo{} \fn{getviewsettings} (\p{viewport})
+\end{bgi}
+
+Fills the \T{viewporttype} struct/class pointed to by \p{viewport}
+with information about the current viewport.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getvisualpage()}}
+\phantomsection\label{sec:getvisualpage}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getvisualpage} (\V{});
+
+\Plogo{} \fn{getvisualpage} ()
+\end{bgi}
+
+Returns the visual page number.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getx()}}
+\phantomsection\label{sec:getx}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getx} (\V{});
+
+\Plogo{} \fn{getx} ()
+\end{bgi}
+
+Returns the current CP \p{x} coordinate, relative to the viewport.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{gety()}}
+\phantomsection\label{sec:gety}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{gety} (\V{});
+
+\Plogo{} \fn{gety} ()
+\end{bgi}
+
+Returns the current CP \p{y} coordinate, relative to the viewport.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{graphdefaults()}}
+\phantomsection\label{sec:graphdefaults}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{graphdefaults} (\V{});
+
+\Plogo{} \fn{graphdefaults} ()
+\end{bgi}
+
+Resets all graphics settings to their default values: sets the
+viewport to the entire screen, moves the CP to (0, 0), sets the
+default palette colours, the default drawing and background colour,
+the default fill style and pattern, the default text font and
+justification.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{grapherrormsg()}}
+\phantomsection\label{sec:grapherrormsg}
+
+\begin{bgi}
+\Clogo{} \T{char*} \fn{grapherrormsg} (\I{} \p{errorcode});
+
+\Plogo{} \fn{grapherrormsg} (\p{errorcode})
+\end{bgi}
+
+Returns the (pointer to the) error message string associated with
+\p{errorcode}, returned by \fn{graphresult()}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{graphresult()}}
+\phantomsection\label{sec:graphresult}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{graphresult} (\V{});
+
+\Plogo{} \fn{graphresult} ()
+\end{bgi}
+
+Returns the error code for the last unsuccessful graphics operation
+and resets the error level to \T{grOk}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{imagesize()}}
+\phantomsection\label{sec:imagesize}
+
+\begin{bgi}
+\Clogo{} \T{unsigned} \fn{imagesize} (\I{} \p{left}, \I{} \p{top},
+\I{} \p{right}, \I{} \p{bottom});
+
+\Plogo{} \fn{imagesize} (\p{left}, \p{top}, \p{right}, \p{bottom})
+\end{bgi}
+
+Returns the size in bytes of the memory area required to store a bit
+image. This value must be allocated in a buffer before copying the
+image with \fn{getimage()}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{initgraph()}}
+\phantomsection\label{sec:initgraph}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{initgraph} (\I{} \p{*graphdriver}, \I{}
+\p{*graphmode}, \C{}\p{pathtodriver});
+
+\Plogo{} \fn{initgraph} (\p{graphdriver}, \p{graphmode},
+\p{pathtodriver});
+\end{bgi}
+
+Initializes the graphics system. In \SDLbgi, you can use SDL as
+\p{graphdriver}, then choose a suitable graphics mode (listed in
+\F{graphics.h}) as \p{graphmode}. The \p{pathtodriver} argument is
+ignored. Typically, \p{graphdriver} is set to \T{DETECT}, and
+\p{graphmode} is not set; these values will set the default resolution
+(800 $\times$ 600) as \T{SVGA}. If the environment variable
+\T{SDL\_BGI\_RES} equals \T{VGA} or \T{vga}, then VGA resolution (640
+$\times$ 480) will be forced.
+
+You can also use \T{NULL} for \p{*graphdriver} and \p{*graphmode} to
+get the default resolution (800 $\times$ 600), or use
+\fn{detectgraph()} (see above) to get fullscreen.
+
+Multiple windows can be created, unless a fullscreen window is already
+present.
+
+Using \fn{initgraph()}, the default 16-colour palette uses the same
+ARGB values as the original palette in Turbo C. Using
+\fn{initwindow()}, the default 16-colour palette uses different
+(possibly, better-looking) ARGB values.
+
+After \fn{initgraph()}, all graphics commands are immediately
+displayed, as in the original BGI. This could make drawing very slow;
+you may want to use \fn{initwindow()} instead.
+
+Alternatively, automatic screen refresh can be performed according to
+the value of the \T{SDL\_BGI\_RATE} environment variable. If the
+variable is set to \T{auto}, screen refresh is automatically performed
+every \p{msec} milliseconds; this value is the current screen refresh
+rate, as given by \T{SDL\_GetDisplayMode()}. If the variable is set to
+an integer value \p{msec}, automatic screen refresh will be performed
+every \p{msec} milliseconds.
+
+Automatic screen refresh is much faster than the default behaviour;
+however, this feature may not work on some graphic cards.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{installuserdriver()}}
+\phantomsection\label{sec:installuserdriver}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{installuserdriver} (\C{}\p{name}, \I{} (\p{*detect})(\V{}));
+
+\Plogo{} \fn{installuserdriver} ()
+\end{bgi}
+
+Unimplemented; not used by \SDLbgi.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{installuserfont()}}
+\phantomsection\label{sec:installuserfont}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{installuserfont} (\C{}\p{name});
+
+\Plogo{} \fn{installuserfont} (\p{name})
+\end{bgi}
+
+Loads and installs a \file{CHR} font from disk. The function returns
+an integer to be used as first argument in \fn{settextstyle()}.
+
+% \emph{Note:} font metrics of loaded \file{CHR} files are not
+% pixel-perfect yet.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{line()}}
+\phantomsection\label{sec:line}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{line} (\I{} \p{x1}, \I{} \p{y1}, \I{} \p{x2}, \I{}
+\p{y2});
+
+\Plogo{} \fn{line} (\p{x1}, \p{y1}, \p{x2}, \p{y2})
+\end{bgi}
+
+Draws a line between two specified points; the CP is not updated.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{linerel()}}
+\phantomsection\label{sec:linerel}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{linerel} (\I{} \p{dx}, \I{} \p{dy});
+
+\Plogo{} \fn{linerel} (\p{dx}, \p{dy})
+\end{bgi}
+
+Draws a line from the CP to a point that is (\p{dx}, \p{dy}) pixels
+from the CP. The CP is then advanced by (\p{dx}, \p{dy}).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{lineto()}}
+\phantomsection\label{sec:lineto}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{lineto} (\I{} \p{x}, \I{} \p{y});
+
+\Plogo{} \fn{lineto} (\p{x}, \p{y})
+\end{bgi}
+
+Draws a line from the CP to (\p{x}, \p{y}), then moves the CP to
+(\p{dx}, \p{dy}).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{moverel()}}
+\phantomsection\label{sec:moverel}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{moverel} (\I{} \p{dx}, \I{} \p{dy});
+
+\Plogo{} \fn{moverel} (\p{dx}, \p{dy})
+\end{bgi}
+
+Moves the CP by (\p{dx}, \p{dy}) pixels.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{moveto()}}
+\phantomsection\label{sec:moveto}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{moveto} (\I{} \p{x}, \I{} \p{y});
+
+\Plogo{} \fn{moveto} (\p{x}, \p{x})
+\end{bgi}
+
+Moves the CP to the position (\p{x}, \p{y}), relative to the viewport.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{outtext()}}
+\phantomsection\label{sec:outtext}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{outtext} (\C{}\p{textstring});
+
+\Plogo{} \fn{outtext} (\p{textstr})
+\end{bgi}
+
+Outputs \p{textstring} at the CP.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{outtextxy()}}
+\phantomsection\label{sec:outtextxy}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{outtextxy} (\I{} \p{x}, \I{} \p{y}, \C{}\p{textstring});
+
+\Plogo{} \fn{outtextxy} (\p{x}, \p{y}, \p{textstring})
+\end{bgi}
+
+Outputs \p{textstring} at (\p{x}, \p{y}).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{pieslice()}}
+\phantomsection\label{sec:pieslice}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{pieslice} (\I{} \p{x}, \I{} \p{y}, \I{} \p{stangle},
+\I{} \p{endangle}, \I{} \p{radius});
+
+\Plogo{} \fn{pieslice} (\p{x}, \p{y}, \p{stangle}, \p{endangle},
+\p{radius})
+\end{bgi}
+
+Draws and fills a pie slice centered at (\p{x}, \p{y}), with a radius
+given by \p{radius}, traveling from \p{stangle} to \p{endangle}. The
+pie slice is filled using the current fill colour.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{putimage()}}
+\phantomsection\label{sec:putimage}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{putimage} (\I{} \p{left}, \I{} \p{top}, \V{}
+\p{*bitmap}, \I{} \p{op});
+
+\Plogo{} \fn{putimage} (\p{left}, \p{top}, \p{bitmap}, \p{op})
+\end{bgi}
+
+Puts the bit image pointed to by \p{bitmap} onto the screen, with the
+upper left corner of the image placed at (\p{left}, \p{top}). \p{op}
+specifies the drawing mode (\T{COPY\_PUT}, etc).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{putpixel()}}
+\phantomsection\label{sec:putpixel}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{putpixel} (\I{} \p{x}, \I{} \p{y}, \I{} \p{color});
+
+\Plogo{} \fn{putpixel} (\p{x}, \p{y}, \p{color})
+\end{bgi}
+
+Plots a pixel at (\p{x}, \p{y}) in the colour defined by \p{color}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{rectangle()}}
+\phantomsection\label{sec:rectangle}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{rectangle} (\I{} \p{left}, \I{} \p{top}, \I{}
+\p{right}, \I{} \p{bottom});
+
+\Plogo{} \fn{rectangle} (\p{left}, \p{top}, \p{right}, \p{bottom})
+\end{bgi}
+
+Draws a rectangle delimited by (\p{left}, \p{top}) and (\p{right},
+\p{bottom}).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{registerbgidriver()}}
+\phantomsection\label{sec:registerbgidriver}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{registerbgidriver} (\V{} (\p{*driver})(\V{}));
+
+\Plogo{} \fn{registerbgidriver} ()
+\end{bgi}
+
+Unimplemented; not used by \SDLbgi.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{registerbgifont()}}
+\phantomsection\label{sec:registerbgifont}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{registerbgifont} (\V{} (\p{*font})(\V{}));
+
+\Plogo{} \fn{registerbgifont} ()
+\end{bgi}
+
+Unimplemented; not used by \SDLbgi.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{restorecrtmode()}}
+\phantomsection\label{sec:restorecrtmode}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{restorecrtmode} (\V{});
+
+\Plogo{} \fn{restorecrtmode} ()
+\end{bgi}
+
+Hides the graphics window and turns on text mode.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{sector()}}
+\phantomsection\label{sec:sector}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{sector} (\I{} \p{x}, \I{} \p{y}, \I{} \p{stangle},
+\I{} \p{endangle}, \I{} \p{xradius}, \I{} \p{yradius});
+
+\Plogo{} \fn{sector} (\p{x}, \p{y}, \p{stangle}, \p{endangle},
+\p{xradius}, \p{yradius})
+\end{bgi}
+
+Draws and fills an elliptical pie slice centered at (\p{x}, \p{y}),
+horizontal and vertical radii given by \p{xradius} and \p{yradius},
+traveling from \p{stangle} to \p{endangle}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setactivepage()}}
+\phantomsection\label{sec:setactivepage}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setactivepage} (\I{} \p{page});
+
+\Plogo{} \fn{setactivepage} (\p{page})
+\end{bgi}
+
+Makes \p{page} the active page for all subsequent graphics output. In
+multi-window mode, \fn{setactivepage()} only works for the first window.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setallpalette()}}
+\phantomsection\label{sec:setallpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setallpalette} (\T{struct palettetype *}\p{palette});
+
+\Plogo{} \p{palette} = \tp{palettetype} ()\\
+\Plogo{} \fn{setallpalette} (\p{palette})
+\end{bgi}
+
+Sets the current palette to the values stored in \p{palette}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setaspectratio()}}
+\phantomsection\label{sec:setaspectratio}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setaspectratio} (\I{} \p{xasp}, \I{} \p{yasp});
+
+\Plogo{} \p{xasp}, \p{yasp} = \tp{c\_int} (), \tp{c\_int} ()\\
+\Plogo{} \fn{setaspectratio} (\p{xasp}, \p{yasp})
+\end{bgi}
+
+Changes the default aspect ratio of the graphics. In \SDLbgi, this
+function is not necessary since the pixels are square on modern
+hardware.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setbkcolor()}}
+\phantomsection\label{sec:setbkcolor}
+
+\begin{bgi}
+\V{} \fn{setbkcolor} (\I{} \p{color});
+\end{bgi}
+
+Sets the current background colour in the default BGI palette. If ARGB
+colours are not being used and \p{color} $>$ \T{MAXCOLORS}, then sets
+\p{color} \% \T{MAXCOLORS}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setcolor()}}
+\phantomsection\label{sec:setcolor}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setcolor} (\I{} \p{color});
+
+\Plogo{} \fn{setcolor} (\p{color})
+\end{bgi}
+
+Sets the current drawing colour in the default BGI palette. If ARGB
+colours are not being used and \p{color} $>$ \T{MAXCOLORS}, then sets
+\p{color} \% \T{MAXCOLORS}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setfillpattern()}}
+\phantomsection\label{sec:setfillpattern}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setfillpattern} (\C{}\p{upattern}, \I{} \p{color});
+
+\Plogo{} \fn{setfillpattern} (\p{upattern}, \p{color})
+\end{bgi}
+
+Sets a user-defined fill pattern. \p{upattern} is a pointer to an
+8-byte area; in Python, \p{upattern} is an 8-byte string. Each bit set
+to 1 in each byte is plotted as a pixel.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setfillstyle()}}
+\phantomsection\label{sec:setfillstyle}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setfillstyle} (\I{} \p{upattern}, \I{} \p{color});
+
+\Plogo{} \fn{setfillstyle} (\p{upattern}, \p{color})
+\end{bgi}
+
+Sets the fill pattern and fill colour. \p{upattern} is a pointer to an
+8-byte area; in Python, \p{upattern} is an 8-byte string. Each bit set
+to 1 in each byte is plotted as a pixel.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setgraphbufsize()}}
+\phantomsection\label{sec:setgraphbufsize}
+
+\begin{bgi}
+\Clogo{} unsigned \fn{setgraphbufsize} (\T{unsigned} \p{bufsize});
+
+\Plogo{} \fn{setgraphbufsize} (\p{bufsize})
+\end{bgi}
+
+Unimplemented; not used by \SDLbgi.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setgraphmode()}}
+\phantomsection\label{sec:setgraphmode}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setgraphmode} (\I{} \p{mode});
+
+\Plogo{} \fn{setgraphmode} (\p{mode})
+\end{bgi}
+
+Shows the window that was hidden by \fn{restorecrtmode()}. The
+\p{mode} parameter is ignored,
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setlinestyle()}}
+\phantomsection\label{sec:setlinestyle}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setlinestyle} (\I{} \p{linestyle}, \T{unsigned}
+\p{upattern}, \I{} \p{thickness});
+
+\Plogo{} \fn{setlinestyle} (\p{linestyle}, \p{upattern}, \p{thickness})
+\end{bgi}
+
+Sets the line width and style for all lines drawn by \fn{line()},
+\fn{lineto()}, \fn{rectangle()}, \fn{drawpoly()}, etc. The line
+style can be \T{SOLID\_LINE}, \T{DOTTED\_LINE}, \T{CENTER\_LINE},
+\T{DASHED\-\_LINE}, or \T{USERBIT\_LINE}; in the latter case, the user
+provides a 16-bit number (\p{upattern}) whose bits set to 1 will be
+plotted as pixels.
+
+The line thickness can be set with \T{NORM\_WIDTH} or
+\T{THICK\-\_WIDTH}.
+
+Arcs, circles, ellipses, and pieslices are not affected by
+\p{linestyle}, but are affected by \p{thickness}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setpalette()}}
+\phantomsection\label{sec:setpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setpalette} (\I{} \p{colornum}, \I{} \p{color});
+
+\Plogo{} \fn{setpalette} (\p{colornum}, \p{color})
+\end{bgi}
+
+Changes the standard palette \p{colornum} to \p{color}, which can also
+be specified using the \fn{COLOR()} function; it also changes the
+colour of currently drawn pixels.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{settextjustify()}}
+\phantomsection\label{sec:settextjustify}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{settextjustify} (\I{} \p{horiz}, \I{} \p{vert});
+
+\Plogo{} \fn{settextjustify} (\p{horiz}, \p{vert})
+\end{bgi}
+
+Sets text justification. Text output will be justified around the CP
+horizontally and vertically; settings are \T{LEFT\_TEXT},
+\T{CENTER\_TEXT}, \T{RIGHT\-\_TEXT}, \T{BOTTOM\_TEXT}, and
+\T{TOP\_TEXT}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{settextstyle()}}
+\phantomsection\label{sec:settextstyle}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{settextstyle} (\I{} \p{font}, \I{} \p{direction},
+\I{} \p{charsize});
+
+\Plogo{} \fn{settextstyle} (\p{font}, \p{direction}, \p{charsize})
+\end{bgi}
+
+Sets the text font (8$\times$8 bitmap font \T{DEFAULT\_FONT} and
+vector fonts \T{TRIPLEX\_FONT}, \T{SMALL\-\_FONT},
+\T{SANS\_SERIF\_FONT}, \T{GOTHIC\_FONT}, \T{SCRIPT\_FONT},
+\T{SIMPLEX\_FONT}, \T{TRI\-PLEX\_SCR\_FONT}), the text direction
+(\T{HORIZ\_DIR}, \T{VERT\_DIR}), and the size of the characters.
+
+\p{charsize} is a scaling factor for the text (max. 10). If
+\p{charsize} is 0, the text will either use the default size, or it
+will be scaled by the values set with \fn{setusercharsize()}.
+
+Experimental feature: if a \file{CHR} font is available in the same
+directory as the running program, it will be loaded and used instead
+of its internal equivalent.
+
+% \emph{Note:} pixel-perfect font metrics are not supported yet.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setusercharsize()}}
+\phantomsection\label{sec:setusercharsize}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setusercharsize} (\I{} \p{multx}, \I{} \p{divx},
+\I{} \p{multy}, \I{} \p{divy});
+
+\Plogo{} \fn{setusercharsize} (\p{multx}, \p{divx}, \p{multy}, \p{divy})
+\end{bgi}
+
+Lets the user change the character width and height. If a previous
+call to \fn{settextsty\-le()} set \p{charsize} to 0, the default
+width is scaled by \p{multx}/\p{divx}, and the default height is
+scaled by \p{multy}/\p{divy}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setviewport()}}
+\phantomsection\label{sec:setviewport}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setviewport} (\I{} \p{left}, \I{} \p{top}, \I{}
+\p{right}, \I{} \p{bottom}, \I{} \p{clip});
+
+\Plogo{} \fn{setviewport} (\p{left}, \p{top}, \p{right}, \p{bottom},
+\p{clip})
+\end{bgi}
+
+Sets the current viewport for graphics output. If \p{clip} is nonzero,
+all drawings will be clipped (truncated) to the current viewport.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setvisualpage()}}
+\phantomsection\label{sec:setvisualpage}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setvisualpage} (\I{} \p{page});
+
+\Plogo{} \fn{setvisualpage} (\p{page})
+\end{bgi}
+
+Sets the visual graphics page number to \p{page}. In ``fast mode'',
+the screen is not cleared.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setwritemode()}}
+\phantomsection\label{sec:setwritemode}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setwritemode} (\I{} \p{mode});
+
+\Plogo{} \fn{setwritemode} (\p{mode})
+\end{bgi}
+
+Sets the writing mode for line drawing. \p{mode} can be \T{COPY\_PUT},
+\T{XOR\-\_PUT}, \T{OR\_PUT}, \T{AND\_PUT}, and \T{NOT\_PUT}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{textheight()}}
+\phantomsection\label{sec:textheight}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{textheight} (\C{}\p{textstring});
+
+\Plogo{} \fn{textheight} (\p{textstring})
+\end{bgi}
+
+Returns the height in pixels of \p{textstring}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{textwidth()}}
+\phantomsection\label{sec:textwidth}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{textwidth} (\C{}\p{textstring});
+
+\Plogo{} \fn{textwidth} (\p{textstring})
+\end{bgi}
+
+Returns the width in pixels of \p{textstring}.
+
+% -----
+
+\section{Non-Graphics Functions and Macros}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{delay} (\I{} \p{millisec});
+
+\Plogo{} \fn{delay} (\p{millisec})
+\end{bgi}
+
+Waits for \p{millisec} milliseconds. In ``slow mode'', a screen
+refresh is performed.
+
+\emph{Note}: in Turbo C, this function was provided by \T{DOS.H}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getch()}}
+\phantomsection\label{sec:getch}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getch} (\V{});
+
+\Plogo{} \fn{getch} ()
+\end{bgi}
+
+Waits for a key and returns its ASCII or key code (i.e.\ \T{KEY\_*}).
+In ``slow mode'', a screen refresh is performed. If an \T{SDL\_QUIT}
+event occurs, \T{QUIT} is returned.
+
+\emph{Note}: in Turbo C, this function was provided by \T{CONIO.H}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{kbhit()}}
+\phantomsection\label{sec:kbhit}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{kbhit} (\V{});
+
+\Plogo{} \fn{kbhit} ()
+\end{bgi}
+
+Returns 1 when a key is pressed, excluding special keys (Ctrl, Shift,
+etc.); in ``slow mode'', a screen refresh is performed. If an
+\T{SDL\_QUIT} event occurs, \T{QUIT} is returned.
+
+\emph{Note}: in Turbo C, this function was provided by \T{CONIO.H}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{lastkey()}}
+\phantomsection\label{sec:lastkey}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{lastkey} (\V{});
+
+\Plogo{} \fn{lastkey} ()
+\end{bgi}
+
+Returns the last key that was detected by \fn{kbhit()}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{random()}}
+\phantomsection\label{sec:random}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{random} (\I{} \p{range}) (macro)
+
+\Plogo{} \fn{random} (\p{range})
+\end{bgi}
+
+Returns an integer random number between 0 and \p{range - 1}.
+
+\emph{Note}: in Turbo C, this function was provided by \T{STDLIB.H}.
+
+% -----
+
+% =====
+
+\section{\SDLbgi{} Additions}
+
+The following \SDLbgi{} extensions are mostly compatible with those
+made available by WinBGIm.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{ALPHA\_VALUE()}}
+\phantomsection\label{sec:ALPHAVALUE}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{ALPHA\_VALUE} (\I{} \p{color});
+
+\Plogo{} \fn{ALPHA\_VALUE} (\p{color})
+\end{bgi}
+
+Returns the alpha (transparency) component of an ARGB colour in the
+ARGB palette.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{BLUE\_VALUE()}}
+\phantomsection\label{sec:BLUEVALUE}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{BLUE\_VALUE} (\I{} \p{color});
+
+\Plogo{} \fn{BLUE\_VALUE} (\p{color})
+\end{bgi}
+
+Returns the blue component of an ARGB colour in the ARGB palette.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{closewindow()}}
+\phantomsection\label{sec:closewindow}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{closewindow} (\I{} \p{id});
+
+\Plogo{} \fn{closewindow} (\p{id})
+\end{bgi}
+
+Closes the window identified by \p{id}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{COLOR()}}
+\phantomsection\label{sec:COLOR}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{COLOR} (\I{} \p{r}, \I{} \p{g}, \I{} \p{b});
+
+\Plogo{} \fn{COLOR} (\p{r}, \p{g}, \p{b})
+\end{bgi}
+
+Can be used as colour argument for \fn{getbkcolor()},\ 
+\fn{getcolor()},\ \fn{putpixel()},\ \fn{set\-bkcolor()}
+\fn{setbkcolor()},\ \fn{setcolor()},\ \fn{setfillpattern()},
+\fn{setfillstyle()},\ and \fn{setpalette()}\ to set a colour
+specifying its ARGB components. The colour index is
+\T{ARGB\_TMP\_COL}.
+
+Functions \fn{ALPHA\_VALUE()}, \fn{BLUE\_VALUE()},
+\fn{GREEN\_VALUE()}, and \fn{RED\_VALUE()} do not work on
+temporary colours.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{COLOR32()}}
+\phantomsection\label{sec:COLOR32}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{COLOR32} (\Ut{} \p{color});
+
+\Plogo{} \fn{COLOR32} (\p{color})
+\end{bgi}
+
+Can be used as colour argument for \fn{getbkcolor()},\ 
+\fn{getcolor()},\ \fn{putpixel()},\ \fn{set\-bkcolor()},\ 
+\fn{setcolor()},\ \fn{setfillpattern()},\ \fn{setfillstyle()},\
+and \fn{setpalette()} to set a colour as ARGB integer. The colour
+index is \T{ARGB\_TMP\_COL}.
+
+Functions \fn{ALPHA\_VALUE()}, \fn{BLUE\_VALUE()},
+\fn{GREEN\_VALUE()}, and \fn{RED\_VALUE()} do not work on
+temporary colours.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{colorname()}}
+\phantomsection\label{sec:colorname}
+
+\begin{bgi}
+\Clogo{} \T{char*} \fn{colorname} (\I{} \p{color});
+
+\Plogo{} \fn{colorname} (\p{color})
+\end{bgi}
+
+Returns a string containing the colour name (\T{"BLACK"}, \T{"BLUE"},
+etc.)
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{colorRGB()}}
+\phantomsection\label{sec:colorRGB}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{colorRGB} (\I{} \p{r}, \I{} \p{g}, \I{} \p{b}) (macro)
+
+\Plogo{} \fn{colorRGB} (\p{r}, \p{g}, \p{b})
+\end{bgi}
+
+Can be used to compose a 32 bit colour with \p{r} \p{g} \p{b}
+components; the alpha value is set to \T{0xff}. This macro/function is
+typically used to set values in memory buffers.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{copysurface()}}
+\phantomsection\label{sec:copysurface}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{copysurface} (\T{SDL\_Surface} \p{surface}, \I{}
+\p{x1}, \I{} \p{y1}, \I{} \p{x2}, \I{} \p{y2});
+
+\Plogo{} \fn{copysurface} (\p{surface}, \p{x1}, \p{y1}, \p{x2}, \p{y2})
+\end{bgi}
+
+Copies \p{surface} to the rectangle defined by \p{x1}, \p{y1}, \p{x2},
+\p{y2} and displays it immediately. If \p{x2} or \p{y2} equals 0, then
+the original surface size will be used. 
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{doubleclick()}}
+\phantomsection\label{sec:doubleclick}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{doubleclick} (\V{});
+
+\Plogo{} \fn{doubleclick} ()
+\end{bgi}
+
+Returns 1 if the last mouse click was a double click.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{edelay()}}
+\phantomsection\label{sec:edelay}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{edelay} (\I{} \p{msec});
+
+\Plogo{} \fn{edelay} (\p{msec})
+\end{bgi}
+
+Waits for \p{msec} milliseconds. In ``slow mode'', a screen
+refresh is performed. If an event occurs during the delay, this
+function returns 1, otherwise 0. Use \fn{eventtype()} to get the last
+event.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{event()}}
+\phantomsection\label{sec:event}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{event} (\V{});
+
+\Plogo{} \fn{event} ()
+\end{bgi}
+
+Returns 1 if one of the following events has occurred:
+\T{SDL\_KEYDOWN}, \T{SDL\_MOU\-SEBUT\-TONDOWN}, \T{SDL\_MOUSEWHEEL},
+or \T{SDL\_QUIT}; 0 otherwise.
+
+% -----
+
+% !!! FIX HERE
+
+\addcontentsline{toc}{subsection}{\T{eventtype()}}
+\phantomsection\label{sec:eventtype}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{eventtype} (\V{});
+
+\Plogo{} \fn{eventtype} ()
+\end{bgi}
+
+Returns the type of the last event. Reported events are
+\T{SDL\_KEYDOWN}, \T{SDL\_MOUSEMO\-TION}, \T{SDL\_MOUSEBUTTONDOWN},
+\T{SDL\_MOUSEBUTTONUP}, \T{SDL\_MOUSEWHEEL}, and \T{SDL\_QUIT}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{fputpixel()}}
+\phantomsection\label{sec:fputpixel}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{fputpixel} (\I{} \p{x}, \I{} \p{y});
+
+\Plogo{} \fn{fputpixel} (\p{x}, \I{} \p{y})
+\end{bgi}
+
+Plots a point at (\p{x}, \p{y}) using the current drawing colour. This
+function is usually faster than \fn{putpixel()}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getbuffer()}}
+\phantomsection\label{sec:getbuffer}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getbuffer} (\Ut{} \p{*buffer});
+
+\Plogo{} \fn{getbuffer} (buffer)
+\end{bgi}
+
+Copies the contents of the active window to \p{buffer}, which must be
+a (\fn{getmaxy() + 1}) $\times$ (\fn{getmaxx() + 1}) array of
+\p{Uint32} (C) or a string buffer (Python). Copied elements are in
+ARGB format.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getclick()}}
+\phantomsection\label{sec:getclick}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getclick} (\V{});
+
+\Plogo{} \fn{getclick} ()
+\end{bgi}
+
+Waits for a mouse click and returns the button that was clicked.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getcurrentwindow()}}
+\phantomsection\label{sec:getcurrentwindow}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getcurrentwindow} (\V{});
+
+\Plogo{} \fn{getcurrentwindow} ()
+\end{bgi}
+
+Returns the \p{id} of the current window.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getevent()}}
+\phantomsection\label{sec:getevent}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getevent} (\V{});
+
+\Plogo{} \fn{getevent} ()
+\end{bgi}
+
+Waits for one of the following events: \T{SDL\_KEYDOWN},
+\T{SDL\_MOUSEBUTTONDOWN}, \T{SDL\_MOU\-SEWHEEL}, and \T{SDL\_QUIT}. It
+returns the code of the key, or the mouse button, either 
+\T{WM\_WHEELUP} or \T{WM\_WHEELDOWN}, or \T{SDL\_QUIT}.
+
+% -----
+
+x\addcontentsline{toc}{subsection}{\T{getleftclick()}}
+\phantomsection\label{sec:getleftclick}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getleftclick} (\V{});
+
+\Plogo{} \fn{getleftclick} ()
+\end{bgi}
+
+Waits for the left mouse button to be clicked and released.
+
+% -----
+
+% !!! FIXME
+
+\addcontentsline{toc}{subsection}{\T{getlinebuffer()}}
+\phantomsection\label{sec:getlinebuffer}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getlinebuffer} (\I{} \p{y}, \Ut{} \p{*linebuffer});
+
+\Plogo{} \fn{getlinebuffer} (\p{y}, \p{linebuffer})
+\end{bgi}
+
+Copies the \p{y}-th screen line to \p{linebuffer}, which must be a
+\fn{getmaxx()+1} array of \p{Uint32} in ARGB format (C), or a string
+buffer allocated with \fn{create\_string\_buffer
+(\fn{i\-ma\-ge\-si\-ze} ())} (Python).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmaxheight()}}
+\phantomsection\label{sec:getmaxheight}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getmaxheight} (\V{});
+
+\Plogo{} \fn{getmaxheight} ()
+\end{bgi}
+
+Returns the maximum possible height for a new window (actual screen
+height in pixels). This function may be called before graphics
+initialisation.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmaxwidth()}}
+\phantomsection\label{sec:getmaxwidth}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{getmaxwidth} (\V{});
+
+\Plogo{} \fn{getmaxwidth} ()
+\end{bgi}
+
+Returns the maximum possible width for a new window (actual screen
+width in pixels). This function may be called before graphics
+initialisation.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmiddleclick()}}
+\phantomsection\label{sec:getmiddleclick}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getmiddleclick} (\V{});
+
+\Plogo{} \fn{getmiddleclick} ()
+\end{bgi}
+
+Waits for the middle mouse button to be clicked and released.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getmouseclick()}}
+\phantomsection\label{sec:getmouseclick}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getmouseclick} (\I{} \p{kind}, \I{}\p{*x},
+\I{}\p{*y});
+
+\Plogo{} \p{x}, \p{y} = \tp{c\_int} (), \tp{c\_int} ()\\
+\Plogo{} \fn{getmouseclick} (\p{kind}, \fn{byref} (\p{x}), \fn{byref}
+(\p{y}))
+\end{bgi}
+
+Sets the \p{x}, \p{y} coordinates of the last \p{kind} button click
+expected by \fn{ismouseclick()}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getrgbpalette()}}
+\phantomsection\label{sec:getrgbpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getrgbpalette} (\T{struct rgbpalettetype}
+\p{*palette} \I{} \p{size});
+
+\Plogo{} \p{palette} = \tp{rgbpalettetype} ()\\
+\Plogo{} \fn{getrgbpalette} (\p{palette}, \p{size})
+\end{bgi}
+
+Fills the \T{rgbpalettetype} struct/class pointed by \p{palette} with
+information about the current ARGB palette's size and colours.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getrightclick()}}
+\phantomsection\label{sec:getrightclick}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getrightclick} (\V{});
+
+\Plogo{} \fn{getrightclick} ()
+\end{bgi}
+
+Waits for the right mouse button to be clicked and released.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getscreensize()}}
+\phantomsection\label{sec:getscreensize}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getscreensize} (\I{} \p{*width}, \I{} \p{*height});
+
+\Plogo{} \p{x}, \p{y} = \tp{c\_int} (), \tp{c\_int} ()\\
+\Plogo{} \fn{getscreensize} (\fn{byref} (\p{x}), \fn{byref} (\p{y}))
+\end{bgi}
+
+Reports the screen width and height in \p{width} and \p{height},
+regardless of current window dimensions. This function may be called
+before graphics initialisation.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getwindowheight()}}  (macro)
+\phantomsection\label{sec:getwindowheight}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getwindowheight} (\V{});
+
+\Plogo{} \fn{getwindowheight} ()
+\end{bgi}
+
+Equivalent to \fn{getmaxy()} (WinBGIm compatibility).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{getwindowwidth()}}  (macro)
+\phantomsection\label{sec:getwindowwidth}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{getwindowwidth} (\V{});
+
+\Plogo{} \fn{getwindowwidth} ()
+\end{bgi}
+
+Equivalent to \fn{getmaxx()} (WinBGIm compatibility).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{GREEN\_VALUE()}}
+\phantomsection\label{sec:GREENVALUE}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{GREEN\_VALUE} (\I{} \p{color});
+
+\Plogo{} \fn{GREEN\_VALUE} (\p{color})
+\end{bgi}
+
+Returns the green component of an ARGB colour in the ARGB palette.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{initpalette()}}
+\phantomsection\label{sec:initpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{initpalette} (\V{});
+
+\Plogo{} \fn{initpalette} ()
+\end{bgi}
+
+Initialises the BGI palette to the standard 16 colours. If the
+environment variable \T{SDL\_BGI\-\_PALET\-TE} equals \T{BGI}, the
+first 16 colours will use the same RGB values as Turbo C 2.01;
+otherwise, a brighter palette will be used.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{initwindow()}}
+\phantomsection\label{sec:initwindow}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{initwindow} (\I{} \p{width}, \I{} \p{height});
+
+\Plogo{} \fn{initwindow} (\p{width}, \p{height})
+\end{bgi}
+
+Initializes the graphics system, opening a \p{width}$\times$\p{height}
+window. If either \p{width} or \p{height} is 0, then
+\T{SDL\-\_FULL\-SCREEN} will be used. Multiple windows can be created,
+unless a fullscreen window is already present.
+
+The user must update the screen as needed using \fn{refresh()}, or
+use \fn{sdlbgiauto()}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{IS\_BGI\_COLOR()}}
+\phantomsection\label{sec:ISBGICOLOR}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{IS\_BGI\_COLOR} (\I{} \p{color});
+
+\Plogo{} \fn{IS\_BGI\_COLOR} (\p{color})
+\end{bgi}
+
+Returns 1 if the \emph{current} drawing colour is a standard BGI
+colour (that is, not ARGB). The \p{color} argument is actually
+redundant (WinBGIm compatibility).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{ismouseclick()}}
+\phantomsection\label{sec:ismouseclick}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{ismouseclick} (\I{} \p{kind});
+
+\Plogo{} \fn{ismouseclick} (\p{kind})
+\end{bgi}
+
+Returns 1 if the \p{kind} mouse button was clicked.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{IS\_RGB\_COLOR()}}
+\phantomsection\label{sec:ISRGBCOLOR}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{IS\_RGB\_COLOR} (\I{} \p{color});
+
+\Plogo{} \fn{IS\_RGB\_COLOR} (\p{color})
+\end{bgi}
+
+Returns 1 if the \emph{current} drawing colour is ARGB. The \p{color}
+argument is actually redundant (WinBGIm compatibility).
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{kdelay()}}
+\phantomsection\label{sec:kdelay}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{kdelay} (\I{} \p{msec});
+
+\Plogo{} \fn{edelay} (\p{msec})
+\end{bgi}
+
+Waits for \p{msec} milliseconds. In ``slow mode'', a screen
+refresh is performed. If a key is pressed during the delay, this
+function returns 1, otherwise 0.
+
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{mouseclick()}}
+\phantomsection\label{sec:mouseclick}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{mouseclick} (\V{});
+
+\Plogo{} \fn{mouseclick} ()
+\end{bgi}
+
+Returns the code of the mouse button that is being clicked, or
+\T{SDL\_MOUSEMOTION} if the mouse is being moved, or 0 if no mouse
+event is occurring.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{mousex()}}
+\phantomsection\label{sec:mousex}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{mousex} (\V{});
+
+\Plogo{} \fn{mousex} ()
+\end{bgi}
+
+Returns the X coordinate of the last mouse click.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{mousey()}}
+\phantomsection\label{sec:mousey}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{mousey} (\V{});
+
+\Plogo{} \fn{mousey} ()
+\end{bgi}
+
+Returns the Y coordinate of the last mouse click.
+
+% -----
+
+% !!! FIX ME
+
+\addcontentsline{toc}{subsection}{\T{putbuffer()}}
+\phantomsection\label{sec:putbuffer}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{putbuffer} (\Ut{} \p{*buffer});
+
+\Plogo{} \fn{putbuffer} (\p{buffer})
+\end{bgi}
+
+% FIXME: better description
+
+Copies \p{buffer} to the current window. \p{buffer} must be a
+(\fn{getmaxy() + 1}) $\times$ (\fn{getmaxx() + 1}) array of
+\p{Uint32} in ARGB format. This function is faster than direct pixel
+manipulation.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{putlinebuffer()}}
+\phantomsection\label{sec:putlinebuffer}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{putlinebuffer} (\I{} \p{y}, \Ut{} \p{*linebuffer});
+
+\Plogo{} \fn{putlinebuffer} (\p{y}, \p{linebuffer})
+\end{bgi}
+
+Copies \p{linebuffer} to the \p{y} coordinate in the current window.
+\p{linebuffer} must be a \fn{get\-maxx()+1} array of \p{Uint32} in
+ARGB format. This function is faster than direct pixel manipulation.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{readimagefile()}}
+\phantomsection\label{sec:readimagefile}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{readimagefile} (\C{}\p{filename}, \I{} \p{x1}, \I{}
+\p{y1}, \I{} \p{x2}, \I{} \p{y2});
+
+\Plogo{} \fn{readimagefile} (\p{filename}, \p{x1}, \p{y1}, \p{x2},
+\p{y2})
+\end{bgi}
+
+Reads a \F{.bmp} file and displays it immediately at (\p{x1}, \p{y1}).
+If (\p{x2}, \p{y2}) are not 0, the bitmap is stretched to fit the
+rectangle \p{x1}, \p{y1}---\p{x2}, \p{y2}; otherwise, the bitmap is
+clipped as necessary.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{RED\_VALUE()}}
+\phantomsection\label{sec:REDVALUE}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{RED\_VALUE} (\I{} \p{color});
+
+\Plogo{} \fn{RED\_VALUE} (\p{color})
+\end{bgi}
+
+Returns the red component of an ARGB colour in the ARGB palette.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{refresh()}}
+\phantomsection\label{sec:refresh}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{refresh} (\V{});
+
+\Plogo{} \fn{refresh} ()
+\end{bgi}
+
+Updates the screen contents, i.e.\ displays all graphics.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{resetwinoptions()}}
+\phantomsection\label{sec:resetwinoptions}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{resetwinoptions} (\I{} \p{id}, \C{} \p{title}, \I{}
+\p{x}, \I{} \p{y});
+
+\Plogo{} \fn{resetwinoptions} (\p{id}, \p{title}, \p{x}, \p{y})
+\end{bgi}
+
+Resets the window title \p{title} and position to (\p{x}, \p{y}) of an
+existing window identified by \p{id}. \p{x} and \p{y} can be set to
+\T{SDL\_WINDOWPOS\_CENTERED} or \T{SDL\_WINDOWPOS\_UNDEFINED}.
+
+% If \p{title} is an empty string, the window title is set to the
+% default value \T{SDL\_bgi}.
+
+If either \p{x} or \p{y} is -1, position parameters are ignored.
+
+% -----
+
+% !!! FIX ME
+
+\addcontentsline{toc}{subsection}{\T{resizepalette()}}
+\phantomsection\label{sec:resizepalette}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{resizepalette} (\Ut{} \p{newsize});
+
+\Plogo{} \fn{resizepalette} (\p{newsize})
+\end{bgi}
+
+Resizes the ARGB palette to \p{newsize}; returns 0 if successful, 1
+otherwise. The initial size of the ARGB palette is 4096.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{RGBPALETTE()}}
+\phantomsection\label{sec:RGBPALETTE}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{RGBPALETTE} (\I{} \p{color});
+
+\Plogo{} \fn{RGBPALETTE} (\p{color})
+\end{bgi}
+
+Can be used as a colour argument for \fn{getbkcolor()},
+\fn{getcolor()}, \fn{putpixel()}, \fn{setbkcolor()} \fn{setbkcolor()},
+\fn{setcolor()}, \fn{setfillpattern()}, \fn{setfillstyle()} and
+\fn{setpalette()} to set the colour from the ARGB palette \p{color}
+entry. The colour index is \T{ARGB\_TMP\_COL}.
+
+Functions \fn{ALPHA\_VALUE()}, \fn{BLUE\_VALUE()},
+\fn{GREEN\_VALUE()}, and \fn{RED\_VALUE()} do not work on temporary
+colours.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{sdlbgiauto()}}
+\phantomsection\label{sec:sdlbgiauto}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{sdlbgiauto} (\V{});
+
+\Plogo{} \fn{sdlbgiauto} ()
+\end{bgi}
+
+Triggers ``auto mode'', i.e.\ \fn{refresh()} is performed
+automatically. Caveat: it may not work on some graphics cards.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{sdlbgifast()}}
+\phantomsection\label{sec:sdlbgifast}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{sdlbgifast} (\V{});
+
+\Plogo{} \fn{sdlbgifast} ()
+\end{bgi}
+
+Triggers ``fast mode'', i.e.\ \fn{refresh()} is needed to display
+graphics.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{sdlbgislow()}}
+\phantomsection\label{sec:sdlbgislow}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{sdlbgislow} (\V{});
+
+\Plogo{} \fn{sdlbgislow} ()
+\end{bgi}
+
+Triggers ``slow mode'', i.e.\ \fn{refresh()} is not needed to
+display graphics.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setallrgbpalette()}}
+\phantomsection\label{sec:setallrgbpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setallrgbpalette} (\T{struct rgbpalettetype *}\p{palette});
+
+\Plogo{} \p{palette} = \tp{rgbpalettetype} ()\\
+\Plogo{} \fn{setallrgbpalette} (\fn{byref} (\p{palette}))
+\end{bgi}
+
+Sets the current ARGB palette to the values stored in \p{palette}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setalpha()}}
+\phantomsection\label{sec:setalpha}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setalpha} (\I{} \p{col}, \Ue{} \p{alpha});
+
+\Plogo{} \fn{setalpha} (\p{col}, \p{alpha})
+\end{bgi}
+
+Sets alpha transparency for colour \p{col} to \p{alpha} (0--255); 0
+means full transparecy, 255 full opacity. \fn{setalpha()} works with
+colours in both palettes.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setbkrgbcolor()}}
+\phantomsection\label{sec:setbkrgbcolor}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setbkrgbcolor} (\I{} \p{n});
+
+\Plogo{} \fn{setbkrgbcolor} (\p{n})
+\end{bgi}
+
+Sets the current background colour using the \p{n}-th colour entry in
+the ARGB palette.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setblendmode()}}
+\phantomsection\label{sec:setblendmode}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setblendmode} (\I{} \p{blendmode});
+
+\Plogo{} \fn{setblendmode} (\p{blendmode})
+\end{bgi}
+
+Sets the blend mode to be used with screen refresh. \p{blendmode} can
+be \T{SDL\_BLENDMODE\-\_NONE} (default in ``slow mode'') or
+\T{SDL\_BLENDMODE\_BLEND}. The latter enables alpha blending.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setcurrentwindow()}}
+\phantomsection\label{sec:setcurrentwindow}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setcurrentwindow} (\I{} \p{id});
+
+\Plogo{} \fn{setcurrentwindow} (\p{id})
+\end{bgi}
+
+Sets the current active window to \p{id}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setrgbcolor()}}
+\phantomsection\label{sec:setrgbcolor}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setrgbcolor} (\I{} \p{n});
+
+\Plogo{} \fn{setrgbcolor} (\p{n})
+\end{bgi}
+
+Sets the current drawing colour using the \p{n}-th colour entry in the
+ARGB palette.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setrgbpalette()}}
+\phantomsection\label{sec:setrgbpalette}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setrgbpalette} (\I{} \p{n}, \I{} \p{r}, \I{} \p{g}, \I{} \p{b});
+
+\Plogo{} \fn{setrgbpalette} (\p{n}, \p{r}, \p{g}, \p{b})
+\end{bgi}
+
+Sets the \p{n}-th entry in the ARGB palette specifying the \p{r},
+\p{g}, and \p{b} components.
+
+Using \fn{setrgbpalette()} and \fn{setrgbcolor()} is faster than
+setting colours with \fn{setco\-lor()} with a \fn{COLOR()}
+argument. It does not change the colour of currently drawn pixels.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setwinoptions()}}
+\phantomsection\label{sec:setwinoptions}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setwinoptions} (\C{}\p{title}, \I{} \p{x}, \I{}
+\p{y}, \Ut{} \p{flags});
+
+\Plogo{} \fn{setwinoptions} (\p{title}, \p{x}, \p{y}, \p{flags})
+\end{bgi}
+
+Sets the window title \p{title}, the initial position to (\p{x},
+\p{y}), and SDL2 flags OR'ed together. \p{x} and \p{y} can be set to
+\T{SDL\_WINDOWPOS\_CENTERED} or \T{SDL\_WINDOWPOS\_UNDEFI\-NED}.
+
+If \p{title} is an empty string, the window title is set to the
+default value \T{SDL\_bgi}.
+
+If either \p{x} or \p{y} is -1, the position parameters are ignored.
+
+If \p{flags} is -1, the parameter is ignored; otherwise, only the
+values \T{SDL\_WINDOW\_FULL\-SCREEN},
+\T{SDL\_WIN\-DOW\_FULLSCREEN\_DESKTOP}, \T{SDL\_WINDOW\_SHOWN},
+\T{SDL\_WINDOW\_HIDDEN}, \T{SDL\_WINDOW\-\_BORDERLESS}, and
+\T{SDL\_WINDOW\_MINIMIZED} can be applied.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{setwintitle()}}
+\phantomsection\label{sec:setwintitle}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{setwintitle} (\I{id}, \C{}\p{title});
+
+\Plogo{} \fn{setwintitle} (\p{id}, \p{title})
+\end{bgi}
+
+Sets the title of the window identified by \p{id}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{showerrorbox()}}
+\phantomsection\label{sec:showerrorbox}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{showerrorbox} (const \C{}\p{message});
+
+\Plogo{} \fn{showerrorbox} (\p{message})
+\end{bgi}
+
+Opens an error message box with the specified message. The message box
+waits for the user to click on the OK button.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{showinfobox()}}
+\phantomsection\label{sec:showinfobox}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{showinfobox} (const \C{}\p{message});
+
+\Plogo{} \fn{showinfobox} (\p{message})
+\end{bgi}
+
+Opens an information message box with the specified message. The
+message box waits for the user to click on the OK button.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{swapbuffers()}}
+\phantomsection\label{sec:swapbuffers}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{swapbuffers} (\V{});
+
+\Plogo{} \fn{swapbuffers} ()
+\end{bgi}
+
+Swaps the current active and the current visual graphics pages.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{writeimagefile()}}
+\phantomsection\label{sec:writeimagefile}
+
+\begin{bgi}
+\Clogo{} \V{} \fn{writeimagefile} (\C{}\p{filename}, \I{} \p{left},
+\I{} \p{top}, \I{} \p{right}, \I{} \p{bottom});
+
+\Plogo{} \fn{writeimagefile} (\p{filename}, \p{left}, \p{top},
+\p{right}, \p{bottom})
+\end{bgi}
+
+Writes a \F{.bmp} file from the screen rectangle defined by
+\p{left}, \p{top}---\p{right}, \p{bottom}.
+
+% -----
+
+\addcontentsline{toc}{subsection}{\T{xkbhit()}}
+\phantomsection\label{sec:xkbhit}
+
+\begin{bgi}
+\Clogo{} \I{} \fn{xkbhit} (\V{});
+
+\Plogo{} \fn{xkbhit} ()
+\end{bgi}
+
+Returns 1 when any key is pressed, including special keys (Ctrl, Shift,
+etc.); in ``slow mode'', a screen refresh is performed. If an
+\T{SDL\_QUIT} event occurs, \T{QUIT} is returned.
+
+% =====
+
+\bigskip
+
+\rule{\linewidth}{0.2pt}
+
+This document is a free manual, released under the GNU Free
+Documentation License (FDL) v. 1.3 or later.
+
+Brought to you by Guido Gonzato, PhD \ntt{=8-)}
+
+\end{document}
+
+% ----- end of file sdl_bgi-quickref.tex

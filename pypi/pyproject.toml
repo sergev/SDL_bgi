@@ -1,0 +1,30 @@
+[project]
+
+name        = "sdl_bgi"
+version     = "3.0.0"
+description = "SDL2-based 'GRAPHICS.H' implementation"
+authors = [
+  { name="Guido Gonzato, PhD", email="guido.gonzato@gmail.com" },
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: zlib/libpng License",
+  "Operating System :: OS Independent"
+]
+
+keywords = ["GRAPHICS.H", "BGI", "SDL2"]
+
+[project.urls]
+"Homepage" = "https://sdl-bgi.sourceforge.io/"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

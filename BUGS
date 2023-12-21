@@ -1,0 +1,16 @@
+BUGS
+----
+
+- automatic refresh does not work on NVIDIA GK208BM (GeForce 920M) with 
+nvidia-driver-* on GNU/Linux. As far as I can say, this is an NVIDIA
+driver problem.
+
+- on MSYS2, keyboard-related functions may cause the program to hang.
+I've tried hard to find out, but I give up: I assume that it's a bug
+in MSYS2 and/or Mingw64.
+
+- in Raspbian 10 for ARM, the 'p' letter is drawn incorrectly in
+SCRIPT_FONT. The bug does not affect Raspbian 10 for i386.
+Reported by Ioulianos Kakoulidis.
+
+Please report bugs if you find any.

@@ -1,0 +1,44 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue howto_CodeBlocks.md -o howto_CodeBlocks.pdf
+
+--->
+<h1 id="how-to-compile-sdl_bgi-programs-with-codeblocks">How to compile <code>SDL_bgi</code> programs with CodeBlocks</h1>
+<p>These instructions show how to compile an <code>SDL_bgi</code> program using CodeBlocks; we will use <code>fern.c</code>, provided in the <code>demo/</code> directory.</p>
+<p>Let’s assume that CodeBlocks is installed in <code>C:\CodeBlocks</code>, and that the SDL2 development libraries for MinGW are installed in <code>C:\SDL2-*</code>. If you installed the software in different directories, change the following instructions accordingly.</p>
+<p>The procedure was tested with CodeBlocks 20.03 and SDL2-devel-2.24.2-mingw.tar.gz.</p>
+<p>Links:</p>
+<p><a href="http://codeblocks.org/" class="uri">http://codeblocks.org/</a></p>
+<p><a href="https://libsdl.org/download-2.0.php" class="uri">https://libsdl.org/download-2.0.php</a></p>
+<h2 id="installing-sdl_bgi">Installing <code>SDL_bgi</code></h2>
+<ul>
+<li><p>copy <code>bin/CodeBlocks/SDL_bgi.dll</code> to<br />
+<code>C:\CodeBlocks\MinGW\bin</code></p></li>
+<li><p>copy <code>SDL_bgi.h</code> to<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include\SDL2</code></p></li>
+<li><p>copy <code>graphics.h</code> to<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include</code></p></li>
+</ul>
+<h2 id="how-to-compile">How to compile</h2>
+<ul>
+<li><p>start CodeBlocks and click on <code>Create a new project</code></p></li>
+<li><p>click on <code>SDL2 project</code>, then proceed</p></li>
+<li><p>in the wizard, provide a project name (<code>fern</code>), pick a folder to store the project, then click on <code>Next&gt;</code></p></li>
+<li><p>in the next window (SDL2 location), pick <code>C:\SDL2-*\x86_64-w64-mingw32</code>, then click on <code>Next&gt;</code></p></li>
+<li><p>in the next window, uncheck <code>Create "Debug" configuration</code>, check <code>Create "Release" configuration</code>, then click on <code>Finish</code></p></li>
+<li><p>in the panel <code>Projects/Workspace/fern/Sources</code>, delete <code>main.cpp</code> (Remove file from project)</p></li>
+<li><p>in the panel <code>Projects/Workspace/fern</code>: right click, click on <code>Add files...</code>, pick <code>fern.c</code>, then click on <code>Ok</code></p></li>
+<li><p>from the menu <code>Project/Build options...</code> select the <code>Search   directories</code> tab, click on <code>Add</code>, pick the directory<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include</code>, then select <code>No</code> when asked to <code>Keep this as a relative path?</code>. Click on <code>Ok</code></p></li>
+<li><p>from the menu <code>Project/Build options...</code> select the <code>Linker   settings</code> tab, click on <code>Add</code>, pick the files<br />
+<code>C:\CodeBlocks\MinGW\bin\SDL_bgi.dll</code> and<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\bin\SDL2.dll</code>, then select <code>No</code> when asked to <code>Keep this as a relative path?</code>. Click on <code>Ok</code></p></li>
+<li><p>from the menu <code>Build</code>, select <code>Build</code>. The executable <code>fern.exe</code> will be compiled.</p></li>
+<li><p>if you don’t need to set environment variables, close the<br />
+<code>Global variable editor</code> window</p></li>
+<li><p>run <code>fern.exe</code>.</p></li>
+</ul>
+<p><strong>Note 1</strong>: if you release your compiled program, you must also provide <code>SDL2.dll</code> and <code>SDL_bgi.dll</code> in the same directory.</p>
+<p><strong>Note 2</strong>: if your code uses functions provided by <code>stdio.h</code> (e.g. <code>printf()</code>, <code>scanf()</code>, etc.) you must also run a terminal. From the menu <code>"Project/Set program's arguments...</code>, check the box <code>Run host in terminal</code>.</p>

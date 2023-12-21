@@ -1,0 +1,60 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue compatibility.md -o compatibility.pdf
+
+--->
+<h1 id="compatibility">Compatibility</h1>
+<p><code>SDL_bgi</code> has been designed to be functionally compatible with the old Borland Graphics Interface (<code>GRAPHICS.H</code>) for DOS, and with <a href="https://winbgim.codecutter.org/">WinBGIm</a>, which itself is a mostly complete <code>GRAPHICS.H</code> implementation.</p>
+<p><code>SDL_bgi</code> is a superset of both, and as far as I can say it provides the most compatible <code>GRAPHICS.H</code> implementation available. It should be stressed, however, that <code>SDL_bgi</code> is not a Turbo C or Borland C++ emulator! Besides, <code>SDL_bgi</code> is also designed to be portable and to take advantage of modern graphics hardware, thanks to the SDL2 library.</p>
+<h2 id="compatibility-with-graphics.h">Compatibility with <code>GRAPHICS.H</code></h2>
+<p>Compatibility with the original <code>GRAPHICS.H</code> is nearly perfect, but 100% compatibility with old programs written for Turbo C or Borland C++ is technically <em>impossible</em> to attain. In fact, Borland compilers were inherently non portable; they were specifically designed for the PC/DOS platform. Hence, they implemented low-level details such as hardware key codes, memory models, DOS and BIOS calls, inline assembly, and so on. Besides, even in the original Turbo C / Borland C++ different graphic drivers were not fully compatible with one another. For example, programs written for the <code>IBM8514.BGI</code> driver needed modifications to compile and run on the <code>EGAVGA.BGI</code> driver.</p>
+<p>Full compatibility is only possible in a hardware emulator like <a href="https://www.dosbox.com">DOSBox</a>. If a program uses <code>CONIO.H</code>, <code>DOS.H</code>, <code>BIOS.H</code> and the like, chances are you won’t be able to compile it. Please consider using DOSBox and one of the original Borland compilers that are available as freeware.</p>
+<p>That said, <code>SDL_bgi</code> is almost perfectly compatible with the original <code>GRAPHICS.H</code>. It has been tested on the original <code>BGIDEMO.C</code> included in Turbo C 2.01 and Borland C++ 1.01, and on the sample programs <a href="http://winbgim.codecutter.org/V6_0/doc">available here</a>. These sample programs were taken from the original <a href="http://www.bitsavers.org/pdf/borland/borland_C++/Borland_C++_Version_3.1_Library_Reference_1992.pdf">Borland C 3.1 Library Reference</a>.</p>
+<p>Nearly all functions are correctly implemented and work just like in old BGI; in most cases, output is pixel-perfect.</p>
+<h3 id="differences">Differences</h3>
+<p>Some of the following differences might be eliminated in future releases of <code>SDL_bgi</code>.</p>
+<ul>
+<li><p>colour names with <code>CGA_</code> and <code>EGA_</code> prefix have the same value as standard colours. For example, the <code>EGA_BROWN</code> constant is 6, like <code>BROWN</code>, instead of 20 as in Turbo C or Borland C++. This difference should be irrelevant;</p></li>
+<li><p>these functions can be called, but have no effect:</p>
+<ul>
+<li><code>_graphfreemem()</code> is unneeded;</li>
+<li><code>_graphgetmem()</code> is unneeded;</li>
+<li><code>installuserdriver()</code> makes no sense in SDL2;</li>
+<li><code>registerbgidriver()</code> only made sense on the DOS platform;</li>
+<li><code>registerbgifont()</code> only made sense on the DOS platform;</li>
+<li><code>setaspectratio()</code> makes no sense on modern hardware;</li>
+<li><code>setgraphbufsize()</code> is unneeded;</li>
+</ul></li>
+<li><p><code>initgraph()</code> always uses the SDL2 graphics driver, regardless of its first parameter;</p></li>
+<li><p>functions <code>registerbgidriver()</code> and <code>installuserdriver()</code> require an argument that must be defined at compile time. For instance, given this code:</p></li>
+</ul>
+<pre><code>errorcode = registerbgidriver(EGAVGA_driver);</code></pre>
+<p>you must add <code>-D EGAVGA_driver</code> to the <code>gcc</code> command line. You’ll get a compiler warning, but the program will compile and run.</p>
+<ul>
+<li><p><code>setpalette()</code> also changes the colours of pixels on screen, but ‘palette cycling’ (i.e. successive palette changes) does not work the same way as in Turbo C;</p></li>
+<li><p><code>setallpalette()</code> does not change the colours of pixels on screen;</p></li>
+<li><p><code>putimage()</code> bitwise operations (<code>XOR_PUT</code>, <code>OR_PUT</code> etc.) are applied to RGB colour components. This is apparently not the same behaviour as in old Turbo C;</p></li>
+<li><p><code>setusercharsize()</code> also works with <code>DEFAULT_FONT</code>;</p></li>
+<li><p><code>setrgbpalette()</code> works on the extended ARGB palette. To change the RGB components of colours in the default palette, use <code>setpalette()</code> along with <code>COLOR()</code> or <code>RGBPALETTE()</code>:</p></li>
+</ul>
+<pre><code>setpalette (RED, COLOR (0xa0, 0x10, 0x10));
+// use the n-th entry in the ARGB palette
+setpalette (GREEN, RGBPALETTE (n));</code></pre>
+<ul>
+<li>console functions (e.g. <code>printf()</code>) do not send their output to the graphics window. If the program was started from a terminal, input/output will take place on the terminal.</li>
+</ul>
+<h2 id="compatibility-with-winbgim">Compatibility with WinBGIm</h2>
+<p>Most extensions introduced by WinBGIm have been implemented, with a few differences; WinBGIm, in fact, is written in C++, while <code>SDL_bgi</code> is written in C.</p>
+<p>When WinBGIm breaks C compatibility with <code>GRAPHICS.H</code> by providing C++ extensions, <code>SDL_bgi</code> follows the original C syntax.</p>
+<h3 id="differences-1">Differences</h3>
+<ul>
+<li><p>output stream <code>bgiout</code> and related functions <code>outstream()</code> and <code>outstreamxy()</code> are C++ features. Hence, they are not implemented;</p></li>
+<li><p>functions <code>clearmouseclick()</code>, <code>converttorgb()</code>, <code>printimage()</code>, <code>registermousehandler()</code>, and <code>setmousequeuestatus()</code> are not currently implemented;</p></li>
+<li><p>mouse functions are simplified in <code>SDL_bgi</code>, and do not provide the full range of options available in WinBGIm;</p></li>
+<li><p>functions <code>getwindowheight()</code> and <code>getwindowwidth()</code> are Windows-specific; in <code>SDL_bgi</code>, they are equivalent to <code>getmaxy()</code> and <code>getmaxx()</code>.</p></li>
+<li><p>function <code>closegraph()</code> has no parameters in <code>SDL_bgi</code>;</p></li>
+<li><p>function <code>initwindow()</code> only uses the <code>width</code> and <code>height</code> parameters in <code>SDL_bgi</code>;</p></li>
+<li><p>functions <code>IS_BGI_COLOR()</code> and <code>IS_RGB_COLOR()</code> return a value that depends on the palette being used (BGI or ARGB); their argument is ignored.</p></li>
+</ul>

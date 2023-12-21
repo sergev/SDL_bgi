@@ -1,0 +1,75 @@
+<!--
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue howto_AppImage.md -o howto_AppImage.pdf
+
+-->
+<h1 id="how-to-turn-an-sdl_bgi-program-to-an-appimage">How to turn an <code>SDL_bgi</code> program to an AppImage</h1>
+<p>AppImages are GNU/Linux programs that run on any GNU/Linux distro (if they’re packaged correctly!) An AppImage is single file containing the program binary, libraries, and other resources; it can be made executable and run without installation. Please see <a href="https://appimage.org/" class="uri">https://appimage.org/</a></p>
+<p>This document explains how to turn an <code>SDL_bgi</code> program to an AppImage. We will use the sample program <code>fern.c</code>, included in the <code>demo/</code> directory in the <code>SDL_bgi</code> sources. It assumes that <code>SDL_bgi</code> has been installed.</p>
+<p>The procedure described below has been tested on fresh Ubuntu 18.04 and 20.04 systems. AppImages created on either platform also worked on the other; however, AppImages built on Ubuntu 18.04 are much smaller.</p>
+<p>A tutorial is available <a href="https://appimage-builder.readthedocs.io/en/latest/intro/tutorial.html">here</a> but, IMHO, it needs some improvement.</p>
+<h2 id="software">Software</h2>
+<p>Assuming we are building on the x86_64 architecture, we need two programs:</p>
+<ul>
+<li><code>appimagetool-x86_64.AppImage</code></li>
+</ul>
+<p>available here: <a href="https://github.com/AppImage/AppImageKit/releases" class="uri">https://github.com/AppImage/AppImageKit/releases</a></p>
+<ul>
+<li><code>appimage-builder</code></li>
+</ul>
+<p>available here: <a href="https://github.com/AppImageCrafters/appimage-builder" class="uri">https://github.com/AppImageCrafters/appimage-builder</a></p>
+<p>First of all, install some required software:</p>
+<pre><code>$ sudo apt install -y python3-pip python3-setuptools patchelf \
+desktop-file-utils libgdk-pixbuf2.0-dev fakeroot strace fuse \
+python3-imagesize gtk-update-icon-cache</code></pre>
+<p>Install <code>appimagetool</code> somewhere in your <code>$PATH</code>; I suggest that you install in <code>$HOME/.local/bin</code>. Make sure that this directory is included in your <code>$PATH</code>.</p>
+<pre><code>$ wget https://github.com/AppImage/AppImageKit/\
+releases/download/continuous/appimagetool-x86_64.AppImage \
+-O $HOME/.local/bin/appimagetool</code></pre>
+<p>Install <code>appimage-builder</code> using <code>pip3</code>. Required Python packages will be installed in <code>$HOME/.local/lib/python3.8</code>; <code>appimage-builder</code> will be installed in <code>$HOME/.local/bin</code>.</p>
+<pre><code>$ pip3 install --user appimage-builder</code></pre>
+<p>All necessary software is now installed, and we are ready to build the AppImage.</p>
+<h2 id="making-the-appimage">Making the AppImage</h2>
+<p>We need three files: the program executable, an icon, and the <code>libSDL_bgi.so</code> library.</p>
+<p>Create the <code>AppDir</code> directory tree, which will contain the files. If this directory tree already exists, remove it. This directory can be created anywhere.</p>
+<pre><code>~$ rm -rf AppDir ; \
+  mkdir -p AppDir/usr/bin \
+           AppDir/lib/x86_64 \
+           AppDir/usr/share/icons/fern/3.0.056/</code></pre>
+<p>Compile the <code>fern</code> application:</p>
+<pre><code>demo$ gcc -o fern fern.c -lSDL_bgi -lSDL2
+demo$ cp fern $HOME</code></pre>
+<p>A 3.0.056 icon, <code>icon.png</code>, is available in the <code>SDL_bgi</code> sources in <code>doc/</code>:</p>
+<pre><code>doc$ cp icon.png $HOME</code></pre>
+<p>Find out the location of <code>libSDL_bgi.so</code>:</p>
+<pre><code>~$ locate libSDL_bgi.so
+/usr/lib/x86_64-linux-gnu/libSDL_bgi.so
+~$ cp /usr/lib/x86_64-linux-gnu/libSDL_bgi.so .</code></pre>
+<p>Copy the <code>fern</code> executable, <code>icon.png</code>, and <code>libSDL_bgi.so</code> to the right directories:</p>
+<pre><code>$ cp fern AppDir/usr/bin/ ; \
+  cp icon.png AppDir/usr/share/icons/fern/3.0.056/ ; \
+  cp libSDL_bgi.so AppDir/lib/x86_64/</code></pre>
+<p>Create the so-called “recipe” for the AppImage:</p>
+<pre><code>$ appimage-builder --generate
+INFO:Generator:Searching AppDir
+? ID [Eg: com.example.app]: fern
+? Application Name: Fern
+? Icon: icon
+? Executable path relative to AppDir [usr/bin/app]: usr/bin/fern
+? Arguments [Default: $@]: $@
+? Version [Eg: 1.0.0]: 1.0.0
+? Update Information [Default: guess]: guess
+? Architecture: x86_64
+...
+INFO:Generator:Recipe generation completed.</code></pre>
+<p>The application should run; if it doesn’t, the final AppImage might be defective. The <code>AppImageBuilder.yml</code> recipe file will be created.</p>
+<p>The last stage builds the AppImage, skipping the <code>test</code> phase that only works if you have <code>docker</code> installed.</p>
+<pre><code>$ appimage-builder --skip-test --recipe AppImageBuilder.yml
+INFO:main:Running main script
+INFO:main:Running apt deploy
+INFO:apt:apt-get update
+...
+INFO:root:AppImage created successfully</code></pre>
+<p>If everything worked as expected, you will find the newly created AppImage called <code>Fern-1.0.0-x86_64.AppImage</code>. If you plan to distribute the app, please check if it works on other Linux distros beforehand.</p>

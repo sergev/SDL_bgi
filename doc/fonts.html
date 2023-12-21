@@ -1,0 +1,11 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue fonts.md -o fonts.pdf
+
+--->
+<h1 id="about-internal-fonts">About internal fonts</h1>
+<p>Internal vector fonts have been decoded from original Borland <code>CHR</code> fonts and turned to arrays of coordinates; that is, glyphs.</p>
+<p>I’m not aware of the legal status of the <code>CHR</code> fonts that accompanied Borland Turbo C and other compilers. Anyhow, even assuming that they are still copyrighted under U.S. law, their glyphs are not; please see <a href="https://en.wikipedia.org/wiki/Intellectual_property_protection_of_typefaces">this Wikipedia article</a> for details. It is therefore legal to incorporate the glyphs of <code>CHR</code> fonts in <code>SDL_bgi</code>.</p>
+<p>Fonts were taken from Borland Turbo C++ 3, available <a href="https://archive.org/details/turboc3">here</a>, and converted using the ancillary program <code>tmp/chr_decoder.c</code>.</p>

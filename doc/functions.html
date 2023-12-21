@@ -1,0 +1,157 @@
+<h1 id="sdl_bgi-functions-and-macros">SDL_bgi functions and macros</h1>
+<p>This is a list of functions and macros provided by SDL_bgi.</p>
+<h2 id="standard-bgi">Standard BGI</h2>
+<p>void <code>arc</code> (int x, int y, int stangle, int endangle, int radius);</p>
+<p>void <code>bar3d</code> (int left, int top, int right, int bottom, int depth, int topflag);</p>
+<p>void <code>bar</code> (int left, int top, int right, int bottom);</p>
+<p>void <code>circle</code> (int x, int y, int radius);</p>
+<p>void <code>cleardevice</code> (void);</p>
+<p>void <code>clearviewport</code> (void);</p>
+<p>void <code>closegraph</code> (void);</p>
+<p>void <code>detectgraph</code> (int *graphdriver, int *graphmode);</p>
+<p>void <code>drawpoly</code> (int numpoints, int *polypoints);</p>
+<p>void <code>ellipse</code> (int x, int y, int stangle, int endangle, int xradius, int yradius);</p>
+<p>void <code>fillellipse</code> (int x, int y, int xradius, int yradius);</p>
+<p>void <code>fillpoly</code> (int numpoints, int *polypoints);</p>
+<p>void <code>floodfill</code> (int x, int y, int border);</p>
+<p>int <code>getactivepage</code> (void);</p>
+<p>void <code>getarccoords</code> (struct arccoordstype *arccoords);</p>
+<p>void <code>getaspectratio</code> (int *xasp, int *yasp);</p>
+<p>int <code>getbkcolor</code> (void);</p>
+<p>int <code>getcolor</code> (void);</p>
+<p>struct palettetype* <code>getdefaultpalette</code> (void);</p>
+<p>char* <code>getdrivername</code> (void);</p>
+<p>void <code>getfillpattern</code> (char *pattern);</p>
+<p>void <code>getfillsettings</code> (struct fillsettingstype *fillinfo);</p>
+<p>int <code>getgraphmode</code> (void);</p>
+<p>void <code>getimage</code> (int left, int top, int right, int bottom, void *bitmap);</p>
+<p>void <code>getlinesettings</code> (struct linesettingstype *lineinfo);</p>
+<p>int <code>getmaxcolor</code> (void);</p>
+<p>int <code>getmaxmode</code> (void);</p>
+<p>int <code>getmaxx</code> (void);</p>
+<p>int <code>getmaxy</code> (void);</p>
+<p>char* <code>getmodename</code> (int mode_number);</p>
+<p>void <code>getmoderange</code> (int graphdriver, int *lomode, int *himode);</p>
+<p>void <code>getpalette</code> (struct palettetype *palette);</p>
+<p>int <code>getpalettesize</code> (void);</p>
+<p>unsigned int <code>getpixel</code> (int x, int y);</p>
+<p>void <code>gettextsettings</code> (struct textsettingstype *texttypeinfo);</p>
+<p>void <code>getviewsettings</code> (struct viewporttype *viewport);</p>
+<p>int <code>getvisualpage</code> (void);</p>
+<p>int <code>getx</code> (void);</p>
+<p>int <code>gety</code> (void);</p>
+<p>void <code>graphdefaults</code> (void);</p>
+<p>char* <code>grapherrormsg</code> (int errorcode);</p>
+<p>int <code>graphresult</code>(void);</p>
+<p>unsigned <code>imagesize</code> (int left, int top, int right, int bottom);</p>
+<p>void <code>initgraph</code> (int *graphdriver, int *graphmode, char *pathtodriver);</p>
+<p>int <code>installuserdriver</code> (char *name, int huge (*detect)(void));</p>
+<p>int <code>installuserfont</code> (char *name);</p>
+<p>void <code>line</code> (int x1, int y1, int x2, int y2);</p>
+<p>void <code>linerel</code> (int dx, int dy);</p>
+<p>void <code>lineto</code> (int x, int y);</p>
+<p>void <code>moverel</code> (int dx, int dy);</p>
+<p>void <code>moveto</code> (int x, int y);</p>
+<p>void <code>outtext</code> (char *textstring);</p>
+<p>void <code>outtextxy</code> (int x, int y, char *textstring);</p>
+<p>void <code>pieslice</code> (int x, int y, int stangle, int endangle, int radius);</p>
+<p>void <code>putimage</code> (int left, int top, void *bitmap, int op);</p>
+<p>void <code>putpixel</code> (int x, int y, int color);</p>
+<p>void <code>rectangle</code> (int left, int top, int right, int bottom);</p>
+<p>int <code>registerbgidriver</code> (void (*driver)(void));</p>
+<p>int <code>registerbgifont</code> (void (*font)(void));</p>
+<p>void <code>restorecrtmode</code> (void);</p>
+<p>void <code>sector</code> (int x, int y, int stangle, int endangle, int xradius, int yradius);</p>
+<p>void <code>setactivepage</code> (int page);</p>
+<p>void <code>setallpalette</code> (struct palettetype *palette);</p>
+<p>void <code>setaspectratio</code> (int xasp, int yasp);</p>
+<p>void <code>setbkcolor</code> (int color);</p>
+<p>void <code>setcolor</code> (int color);</p>
+<p>void <code>setfillpattern</code> (char *upattern, int color);</p>
+<p>void <code>setfillstyle</code> (int pattern, int color);</p>
+<p>unsigned <code>setgraphbufsize</code> (unsigned bufsize);</p>
+<p>void <code>setgraphmode</code> (int mode);</p>
+<p>void <code>setlinestyle</code> (int linestyle, unsigned upattern, int thickness);</p>
+<p>void <code>setpalette</code> (int colornum, int color);</p>
+<p>void <code>settextjustify</code> (int horiz, int vert);</p>
+<p>void <code>settextstyle</code> (int font, int direction, int charsize);</p>
+<p>void <code>setusercharsize</code> (int multx, int divx, int multy, int divy);</p>
+<p>void <code>setviewport</code> (int left, int top, int right, int bottom, int clip);</p>
+<p>void <code>setvisualpage</code> (int page);</p>
+<p>void <code>setwritemode</code> (int mode);</p>
+<p>int <code>textheight</code> (char *textstring);</p>
+<p>int <code>textwidth</code> (char *textstring);</p>
+<h2 id="sdl_bgi-extensions">SDL_bgi extensions</h2>
+<p>int <code>ALPHA_VALUE</code> (int color);</p>
+<p>int <code>BLUE_VALUE</code> (int color);</p>
+<p>void <code>closewindow</code> (int id);</p>
+<p>int <code>COLOR</code> (int r, int g, int b);</p>
+<p>int <code>COLOR32</code>(Uint32 color);</p>
+<p>char* <code>colorname</code> (int color);</p>
+<p>Uint32 <code>colorRGB</code> (int r, int g, int b) (macro)</p>
+<p>void <code>copysurface</code> (SDL_Surface *surface, int x1, int y1, int x2, int y2);</p>
+<p>int <code>doubleclick</code> (void);</p>
+<p>int <code>edelay</code> (int);</p>
+<p>int <code>event</code> (void);</p>
+<p>int <code>eventtype</code> (void);</p>
+<p>void <code>fputpixel</code> (int x, int y);</p>
+<p>void <code>getbuffer</code> (Uint32 *buffer);</p>
+<p>int <code>getclick</code> (void);</p>
+<p>int <code>getcurrentwindow</code> (void);</p>
+<p>int <code>getevent</code> (void);</p>
+<p>void <code>getleftclick</code> (void);</p>
+<p>void <code>getlinebuffer</code> (int y, Uint32 *linebuffer);</p>
+<p>int <code>getmaxheight</code> (void);</p>
+<p>int <code>getmaxwidth</code> (void);</p>
+<p>void <code>getmiddleclick</code> (void);</p>
+<p>void <code>getmouseclick</code> (int kind, int *x, int *y);</p>
+<p>void <code>getrgbpalette</code> (struct rgbpalettetype *, int size);</p>
+<p>int <code>getrgbpalettesize</code> (void);</p>
+<p>void <code>getrightclick</code> (void);</p>
+<p>void <code>getscreensize</code> (int *x, int *y);</p>
+<p>int <code>getwindowheight</code> (void) (macro)</p>
+<p>int <code>getwindowwidth</code> (void) (macro)</p>
+<p>int <code>GREEN_VALUE</code>(int color);</p>
+<p>void <code>initpalette</code> (void);</p>
+<p>int <code>initwindow</code> (int width, int height);</p>
+<p>int <code>IS_BGI_COLOR</code> (int color);</p>
+<p>int <code>ismouseclick</code> (int kind);</p>
+<p>int <code>IS_RGB_COLOR</code>(int color);</p>
+<p>int <code>kdelay</code> (int);</p>
+<p>int <code>mouseclick</code> (void);</p>
+<p>int <code>mousex</code> (void);</p>
+<p>int <code>mousey</code> (void);</p>
+<p>void <code>putbuffer</code> (Uint32 *buffer);</p>
+<p>void <code>putlinebuffer</code> (int y, Uint32 *buffer);</p>
+<p>void <code>_putpixel</code> (int x, int y, int color);</p>
+<p>void <code>readimagefile</code> (char *filename, int x1, int y1, int x2, int y2);</p>
+<p>int <code>RED_VALUE</code> (int color);</p>
+<p>void <code>refresh</code> (void);</p>
+<p>void <code>resetwinoptions</code> (int id, char *title, int x, int y);</p>
+<p>int <code>resizepalette</code> (Uint32);</p>
+<p>int <code>RGBPALETTE</code> (int);</p>
+<p>void <code>sdlbgiauto</code> (void);</p>
+<p>void <code>sdlbgifast</code> (void);</p>
+<p>void <code>sdlbgislow</code> (void);</p>
+<p>void <code>setallrgbpalette</code> (struct rgbpalettetype *);</p>
+<p>void <code>setalpha</code> (int col, Uint8 alpha);</p>
+<p>void <code>setbkrgbcolor</code> (int color);</p>
+<p>void <code>setblendmode</code> (int blendmode);</p>
+<p>void <code>setcurrentwindow</code> (int id);</p>
+<p>void <code>setrgbcolor</code> (int color);</p>
+<p>void <code>setrgbpalette</code> (int colornum, int red, int green, int blue);</p>
+<p>void <code>setwinoptions</code> (char *title, int x, int y, Uint32 flags);</p>
+<p>void <code>setwintitle</code> (int id, char *title);</p>
+<p>void <code>showerrorbox</code> (const char *message);</p>
+<p>void <code>showinfobox</code> (const char *message);</p>
+<p>void <code>swapbuffers</code> (void);</p>
+<p>void <code>writeimagefile</code> (char *filename, int left, int top, int right, int bottom);</p>
+<h2 id="non-graphics-functions">Non graphics functions</h2>
+<p>void <code>delay</code> (int millisec) <code>// DOS.H</code></p>
+<p>int <code>edelay</code> (int msec);</p>
+<p>int <code>getch</code> (void) (macro) <code>// CONIO.H</code></p>
+<p>int <code>kdelay</code> (int msec);</p>
+<p>int <code>kbhit</code> (void) (macro) <code>// CONIO.H</code></p>
+<p>int <code>lastkey</code> (void);</p>
+<p>int <code>random</code> (int range) (macro) <code>// STDLIB.H</code></p>
+<p>int <code>xkbhit</code> (void);</p>

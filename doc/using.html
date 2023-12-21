@@ -1,0 +1,206 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue -V toccolor=red --toc using.md -o using.pdf
+
+--->
+<h1 id="introduction-to-sdl_bgi">Introduction to <code>SDL_bgi</code></h1>
+<p><code>SDL_bgi</code> is a graphics library (<code>GRAPHICS.H</code>) for C, C++, WebAssembly, and Python. It’s based on SDL2 and it’s portable on many platforms.</p>
+<p>If you’re familiar with BGI, the Borland Graphics Interface provided by Turbo C or Borland C++, then using <code>SDL_bgi</code> along with <code>gcc</code> or <code>clang</code> will be straighforward. If you don’t even know what BGI was, don’t worry: you will find <code>SDL_bgi</code> an easy and fun way to do graphics programming.</p>
+<p>This document shows how to get started with <code>SDL_bgi</code>; please consult <code>sdl_bgi-quickref.pdf</code> for a complete function reference.</p>
+<h2 id="compiling-programs">Compiling Programs</h2>
+<p>The following sections only apply to C and WebAssembly; Python, of course, is not compiled.</p>
+<h3 id="native-code">Native Code</h3>
+<p>To compile a C or C++ program on GNU/Linux, macOS or Raspios you can use the <code>gcc</code>,<code>clang</code>, or <code>tcc</code> compilers. With <code>gcc</code> or <code>clang</code>:</p>
+<pre><code>$ gcc -o program program.c -lSDL_bgi -lSDL2</code></pre>
+<p>With <code>tcc</code>:</p>
+<pre><code>$ tcc -o program program.c -w -D SDL_DISABLE_IMMINTRIN_H \
+    -I /usr/include/SDL2 -lSDL_bgi -lSDL2</code></pre>
+<p>You may get compilation errors affecting <code>libpulsecommon</code>; they can be safely ignored.</p>
+<p><code>tcc</code> can also be invoked from scripts. You just need to add the following line (it can’t be split with <code>\</code>) at the start of your C source (GNU/Linux):</p>
+<pre><code>#!/usr/bin/tcc -run -w -D SDL_DISABLE_IMMINTRIN_H -I /usr/include/SDL2 -lSDL_bgi -lSDL2</code></pre>
+<p>but for better compatibility, please have a look at the <code>demo/tccrun</code> script.</p>
+<p>To compile a program in <a href="https://www.msys2.org/">MSYS2</a> + MINGW64:</p>
+<pre><code>$ gcc -o program.exe program.c -lmingw32 -L/mingw64/bin \
+    -lSDL_bgi -lSDL2main -lSDL2 # -mwindows</code></pre>
+<p>The <code>-mwindows</code> switch creates a window-only program, i.e. a terminal is not started. <em>Beware:</em> functions provided by <code>stdio.h</code> will not work if you don’t start a terminal; your program will have to rely on mouse input only.</p>
+<p><a href="https://www.codeblocks.org/">Code::Blocks</a> users should read the file <code>howto_CodeBlocks.md</code>.</p>
+<p><a href="https://sourceforge.net/projects/orwelldevcpp">Dev-C++</a> users should read the file <code>howto_Dev-Cpp.md</code>.</p>
+<h3 id="webassembly">WebAssembly</h3>
+<p>To compile a program to WebAsssembly using <code>emcc</code>, provided by <a href="https://emscripten.org/docs/compiling/WebAssembly.html">Emscripten</a>:</p>
+<pre><code>$ emcc -o program.html program.c \
+    -std=gnu99 -O2 -Wall -lSDL_bgi -lm \
+    -s USE_SDL=2             `# uses SDL2 module` \
+    -s ALLOW_MEMORY_GROWTH=1 `# needed for the argb palette` \
+    -s ASYNCIFY              `# implement loops` \
+    -s SINGLE_FILE           `# standalone html files`</code></pre>
+<p>where <code>SDL_bgi.bc</code> is the precompiled <code>SDL_bgi</code> wasm module. The resulting <code>program.html</code> can be loaded and run in web browsers, without the need of starting a local web server:</p>
+<pre><code>$ firefox program.html</code></pre>
+<h3 id="compilation-details">Compilation Details</h3>
+<p>Windows users <em>must</em> declare the <code>main()</code> function as:</p>
+<pre><code>int main (int argc, char *argv[])</code></pre>
+<p>even if <code>argc</code> and <code>argv</code> are not going to be used. Your program will not compile if you use a different <code>main()</code> definition (i.e. <code>int main (void)</code>), because of conflict with the <code>WinMain()</code> definition. It’s an SDL2 feature; please consult <a href="https://wiki.libsdl.org/FAQWindows" class="uri">https://wiki.libsdl.org/FAQWindows</a> for details.</p>
+<h2 id="python-usage">Python Usage</h2>
+<p>The <code>sdl_bgi.py</code> module implements nearly all functions. In general, Python functions have the same name and arguments as their C counterparts. For more details, please see <code>howto_Python.md</code>.</p>
+<h1 id="using-sdl_bgi">Using <code>SDL_bgi</code></h1>
+<p>Although <code>SDL_bgi</code> is almost perfectly compatible with the original <code>GRAPHICS.H</code> by Borland, a few minor differences have been introduced. The original BGI library mainly targeted the VGA video display controller, which was quite limited and provided at most 16 colours. <code>SDL_bgi</code> uses modern graphics capabilities provided by <code>SDL2</code>, while retaining backwards compatibility as much as possible.</p>
+<p>Most old programs that use the original BGI library should compile unmodified. For instance,</p>
+<pre><code>int gd = DETECT, gm;
+initgraph (&amp;gd, &amp;gm, &quot;&quot;);</code></pre>
+<p>creates an 800x600 window, mimicking SVGA graphics. If the environment variable <code>SDL_BGI_RES</code> is set to <code>VGA</code>, window resolution will be 640x480.</p>
+<p>Minimal <code>dos.h</code> and <code>conio.h</code> are provided in the <code>demo/</code> directory; they’re good enough to compile the original <code>bgidemo.c</code>.</p>
+<p>Please note that non-BGI functions are <em>not</em> implemented. If you need <code>conio.h</code> for GNU/Linux, please have a look at one of these:</p>
+<ul>
+<li><a href="https://github.com/nowres/conio-for-linux" class="uri">https://github.com/nowres/conio-for-linux</a></li>
+<li><a href="https://gitlab.com/marcodiego/conio" class="uri">https://gitlab.com/marcodiego/conio</a></li>
+</ul>
+<p>To specify the window size, you can use the new SDL driver:</p>
+<pre><code>gd = SDL;
+gm = &lt;mode&gt;;</code></pre>
+<p>where <code>&lt;mode&gt;</code> can be one of the following:</p>
+<pre><code>CGA             320x200
+SDL_320x200     320x200
+EGA             640x350
+SDL_640x480     640x350
+VGA             640x480
+SDL_640x480     640x480
+SVGA            800x600
+SDL_800x600     800x600
+SDL_1024x768    1024x768
+SDL_1152x900    1152x900
+SDL_1280x1024   1280x1024
+SDL_1366x768    1366x768
+SDL_FULLSCREEN  fullscreen</code></pre>
+<p>More less common resolutions are listed in <code>SDL_bgi.h</code>. You may want to use <code>initwindow(int width, int height)</code> instead.</p>
+<p><code>SDL_bgi.h</code> defines the <code>_SDL_BGI_H</code> constant. You can check for its presence and write programs that employ <code>SDL_bgi</code> extensions; please have a look at the test program <code>fern.c</code>.</p>
+<h2 id="screen-refresh">Screen Refresh</h2>
+<p>The only real difference between the original BGI and <code>SDL_bgi</code> is the way the screen is refreshed. In BGI, every graphics element drawn on screen was immediately displayed. This was a terribly inefficient way of drawing stuff: the screen should be refreshed only when the drawing is done. For example, in SDL2 this action is performed by <code>SDL_RenderPresent()</code>.</p>
+<p>You can choose whether to open the graphics system using <code>initgraph()</code>, which toggles BGI compatibility on and forces a screen refresh after every graphics command, or using <code>initwindow()</code> that leaves you in charge of refreshing the screen when needed, using the new function <code>refresh()</code>.</p>
+<p>The first method is fully compatible with the original BGI, but it also painfully slow. An experimental feature is ‘auto mode’: if the environment variable <code>SDL_BGI_RATE</code> is set to <code>auto</code>, screen refresh is automatically performed; this is <em>much</em> faster than the default. This variable may also contain a refresh rate; e.g. 60. Unfortunately, auto mode may not work on some NVIDIA graphic cards.</p>
+<p>As a tradeoff between performance and speed, a screen refresh is also performed by <code>getch()</code>, <code>kbhit()</code>, and <code>delay()</code>. Functions <code>sdlbgifast(void)</code>, <code>sdlbgislow(void)</code>, and <code>sdlbgiauto(void)</code> are also available. They trigger fast, slow, and auto mode, respectively.</p>
+<p>Documentation and sample BGI programs are available at this address:</p>
+<p><a href="https://winbgim.codecutter.org/V6_0/doc/" class="uri">https://winbgim.codecutter.org/V6_0/doc/</a></p>
+<p>Nearly all programs can be compiled with <code>SDL_bgi</code>.</p>
+<p>The original Borland Turbo C 2.0 manual is also available here:</p>
+<p><a href="https://archive.org/details/bitsavers_borlandturReferenceGuide1988_19310204" class="uri">https://archive.org/details/bitsavers_borlandturReferenceGuide1988_19310204</a>.</p>
+<h2 id="avoid-slow-programs">Avoid Slow Programs</h2>
+<p>This is possibly the slowest <code>SDL_bgi</code> code one could write:</p>
+<pre><code>while (! event ()) {
+  putpixel (random(x), random(y), random(col));
+  refresh ();
+}</code></pre>
+<p>This code, which plots pixels until an event occurs (mouse click or key press), is extremely inefficient. First of all, calling <code>event()</code> is relatively expensive; secondly, refreshing the screen after plotting a single pixel is insane. You should write code like this:</p>
+<pre><code>counter = 0;
+stop = 0;
+while (! stop) {
+  putpixel (random(x), random(y), random(col));
+  if (1000 == ++counter) {
+    if (event())
+      stop = 1;
+    refresh ();
+    counter = 0;
+  }
+}</code></pre>
+<p>In general, you should use <code>kbhit()</code>, <code>mouseclick()</code> and <code>event()</code> sparingly, because they’re slow.</p>
+<h2 id="differences">Differences</h2>
+<p>Please see the accompanying document <code>compatibility</code>.</p>
+<h2 id="colours">Colours</h2>
+<p><code>SDL_bgi</code> has two colour palettes: one for compatibility with old BGI, the other for ARGB colours. Colour depth is always 32 bit; <code>SDL_bgi</code> has not been tested on lesser colour depths.</p>
+<p>The default BGI palette includes 16 named colours (<code>BLACK</code>…<code>WHITE</code>); standard BGI functions, like <code>setcolor()</code> or <code>setbkcolor()</code>, use this palette. By default, colours in the default palette don’t have the same RGB values as the original BGI colours; the palette is brighter and (hopefully) better looking. The original RGB values will be used if the environment variable <code>SDL_BGI_PALETTE</code> is set to <code>BGI</code>.</p>
+<p>An extended ARGB palette can be used by functions like <code>setrgbcolor()</code> or <code>setbkrgbcolor()</code> described below; please note the <code>rgb</code> in the function names. The size of the palette is given by <code>getrgbpalettesize()</code>; default value is 4096, but it can be increased using <code>resizepalette()</code>.</p>
+<p>Please see the example programs in the <code>demo/</code> directory.</p>
+<h2 id="fonts">Fonts</h2>
+<p>Fonts that are almost pixel-perfect compatible with the original Borland Turbo C++ 3.0 <code>CHR</code> fonts are built in. Characters in the ASCII range 32 - 254 are available. Loading <code>CHR</code> fonts from disk is also possible.</p>
+<p><code>CHR</code> fonts support was added by Marco Diego Aurélio Mesquita.</p>
+<h2 id="additions">Additions</h2>
+<p>Some functions and macros have been added to add functionality and provide compatibility with other BGI implementations (namely, Xbgi and WinBGIm).</p>
+<p>Further, the following variables (declared in <code>SDL_bgi.h</code>) are accessible to the programmer:</p>
+<pre><code>SDL_Window   *bgi_window;
+SDL_Renderer *bgi_renderer;
+SDL_Texture  *bgi_texture;</code></pre>
+<p>and can be used by native SDL2 functions; see example in <code>demo/sdlbgidemo.c</code>.</p>
+<h3 id="screen-and-windows-functions">Screen and Windows Functions</h3>
+<ul>
+<li><p><code>void initwindow(int width, int height)</code> lets you open a window specifying its size. If either <code>width</code> or <code>height</code> is 0, then <code>SDL_FULLSCREEN</code> will be used.</p></li>
+<li><p><code>void detectgraph(int *gd, int *gm)</code> returns <code>SDL</code>, <code>SDL_FULLSCREEN</code>.</p></li>
+<li><p><code>void setwinoptions(char *title, int x, int y, Uint32 flags)</code> lets you specify the window title (default is <code>SDL_bgi</code>), window position, and some SDL2 window flags OR’ed together. In particular, you can get non-native fullscreen resolution with:</p></li>
+</ul>
+<pre><code>setwinoptions (&quot;&quot;, -1, -1, SDL_WINDOW_FULLSCREEN);
+initwindow (800, 600);</code></pre>
+<ul>
+<li><p><code>getscreensize(int *x, int *y)</code> reports the screen width and height in <code>x</code> and <code>y</code>. You can also use related functions <code>getmaxheight()</code> and <code>getmaxwidth()</code>.</p></li>
+<li><p><code>void sdlbgifast(void)</code> triggers “fast mode” even if the graphics system was opened with <code>initgraph()</code>. Calling <code>refresh()</code> is needed to display graphics.</p></li>
+<li><p><code>void sdlbgislow(void)</code> triggers “slow mode” even if the graphics system was opened with <code>initwindow()</code>. Calling <code>refresh()</code> is not needed.</p></li>
+<li><p><code>void sdlbgiauto(void)</code> triggers automatic screen refresh. <strong>Note</strong>: it may not work on some graphics cards.</p></li>
+</ul>
+<h3 id="multiple-windows-functions">Multiple Windows Functions</h3>
+<p>Subsequent calls to <code>initgraph()</code> or <code>initwindow()</code> make it possible to open several windows; only one of them is active (i.e. being drawn on) at any given moment, regardless of mouse focus.</p>
+<p>Functions <code>setvisualpage()</code> and <code>setactivepage()</code> only work properly in single window mode.</p>
+<ul>
+<li><p><code>int getcurrentwindow()</code> returns the active window identifier.</p></li>
+<li><p><code>void setcurrentwindow(int id)</code> sets the current active window. <code>id</code> is an integer identifier, as returned by <code>getcurrentwindow()</code>.</p></li>
+<li><p><code>void closewindow(int id)</code> closes a window of given id.</p></li>
+</ul>
+<h3 id="colour-functions">Colour Functions</h3>
+<ul>
+<li><p><code>void setrgbpalette(int color, int r, int g, int b)</code> sets colours in an additional palette containing ARGB colours (up to <code>PALETTE_SIZE</code>). See example in <code>demo/mandelbrot.c</code>.</p></li>
+<li><p><code>void setrgbcolor(int col)</code> and <code>void setbkrgbcolor(int col)</code> are the ARGB equivalent of <code>setcolor(int col)</code> and <code>setbkcolor(int col)</code>. <code>col</code> is an allocated colour entry in the ARGB palette.</p></li>
+<li><p><code>COLOR(int r, int g, int b)</code> can be used as an argument whenever a colour value is expected (e.g. <code>setcolor()</code> and other functions). It’s an alternative to <code>setrgbcolor(int col)</code> and <code>setbkrgbcolor(int col)</code>. Allocating colours with <code>setrgbpalette()</code> and using <code>setrgbcolor()</code> is much faster, though.</p></li>
+<li><p><code>COLOR32(Uint32 color)</code> works like <code>COLOR()</code>, but accepts a colour argument as an ARGB Uint32.</p></li>
+<li><p><code>RGBPALETTE(int n)</code> works like <code>COLOR()</code>, but it sets the n-th colour in the ARGB palette.</p></li>
+<li><p><code>colorRGB(int r, int g, int b)</code> can be used to compose a 32 bit colour. This macro is typically used to set values in memory buffers (see below).</p></li>
+<li><p><code>IS_BGI_COLOR(int c)</code> and <code>IS_RGB_COLOR(int c)</code> return 1 if the current colour is standard BGI or ARGB, respectively. The argument is actually redundant; in fact, a colour entry in the range 0-15 may belong to both palettes. Whether the standard palette or the ARGB palette is the current one is set by standard BGI or ARGB functions.</p></li>
+<li><p><code>ALPHA_VALUE(int c)</code>, <code>RED_VALUE(int c)</code>, <code>GREEN_VALUE(int c)</code>, and <code>BLUE_VALUE(int c)</code> return the A, R, G, B component of an ARGB colour in the extended palette.</p></li>
+<li><p><code>getrgbpalette(struct rgbpalettetype* palette)</code> and <code>setallrgbpalette (struct rgbpalettetype *palette)</code> work like their BGI counterpart, but use the ARGB palette. The <code>colors</code> member of <code>struct rgbpalettetype</code> variables must be initialised; please see <code>demo/rgbpalette.c</code>.</p></li>
+<li><p><code>setalpha(int col, Uint8 alpha)</code> sets the alpha component of colour ‘col’.</p></li>
+<li><p><code>setblendmode(int blendmode)</code> sets the blending mode for screen refresh (<code>SDL_BLENDMODE_NONE</code> or <code>SDL_BLENDMODE_BLEND</code>).</p></li>
+<li><p><code>char *colorname(int color)</code> return a string containing the color name.</p></li>
+</ul>
+<h3 id="buffer-functions">Buffer Functions</h3>
+<ul>
+<li><p><code>getbuffer (Uint32 *buffer)</code> and <code>putbuffer (Uint32 *buffer)</code> copy the current window contents to a memory buffer, and the reverse. Using <code>getbuffer()</code> and <code>putbuffer()</code> is faster than direct pixel manipulation, as shown by <code>demo/psychedelia.c</code></p></li>
+<li><p><code>getlinebuffer (int y, Uint32 *linebuffer)</code> and <code>putlinebuffer (int y, Uint32 *linebuffer)</code> work like <code>getbuffer()</code> and <code>putbuffer()</code>, but on a single line of pixels at <code>y</code> coordinate.</p></li>
+</ul>
+<h3 id="mouse-functions">Mouse Functions</h3>
+<ul>
+<li><code>int mouseclick(void)</code> returns the code of the mouse button that is being clicked, 0 otherwise. Mouse buttons and movement constants are defined in <code>SDL_bgi.h</code>:</li>
+</ul>
+<pre><code>WM_LBUTTONDOWN
+WM_MBUTTONDOWN
+WM_RBUTTONDOWN
+WM_WHEEL
+WM_WHEELUP
+WM_WHEELDOWN
+WM_MOUSEMOVE</code></pre>
+<ul>
+<li><p><code>int isdoubleclick(void)</code> returns 1 if the last mouse click was a double click.</p></li>
+<li><p><code>int mousex(void)</code> and <code>int mousey(void)</code> return the mouse coordinates of the last click.</p></li>
+<li><p><code>int ismouseclick(int btn)</code> returns 1 if the <code>btn</code> mouse button was clicked.</p></li>
+<li><p><code>void getmouseclick(int kind, int *x, int *y)</code> sets the x, y coordinates of the last button click expected by <code>ismouseclick()</code>.</p></li>
+<li><p><code>void getleftclick(void)</code>, <code>void getmiddleclick(void)</code>, and <code>void getrightclick(void)</code> wait for the left, middle, and right mouse button to be clicked and released.</p></li>
+<li><p><code>int getclick(void)</code> waits for a mouse click and returns the button that was clicked.</p></li>
+</ul>
+<h3 id="miscellaneous-functions">Miscellaneous Functions</h3>
+<ul>
+<li><p><code>showerrorbox(const char *message)</code> and <code>showinfobox(const char *message)</code> open a window message box with the specified message.</p></li>
+<li><p><code>void _putpixel(int x, int y)</code> is equivalent to <code>putpixel(int x, int y, int col)</code>, but uses the current drawing colour and the pixel is not refreshed in slow mode.</p></li>
+<li><p><code>random(range)</code> is defined as macro: <code>rand()%range</code></p></li>
+<li><p><code>int getch()</code> waits for a key and returns its ASCII code. Special keys and the <code>SDL_QUIT</code> event are also reported; please see <code>SDL_bgi.h</code>.</p></li>
+<li><p><code>void delay(msec)</code> waits for <code>msec</code> milliseconds.</p></li>
+<li><p><code>int getevent(void)</code> waits for a keypress or mouse click, and returns the code of the key or mouse button. It also catches and returns <code>SDL_QUIT</code> events.</p></li>
+<li><p><code>int event(void)</code> is a non-blocking version of <code>getevent()</code>.</p></li>
+<li><p><code>int eventtype(void)</code> returns the type of the last event.</p></li>
+<li><p><code>void readimagefile(char *filename, int x1, int y1, int x2, int y2)</code> reads a <code>.bmp</code> file and displays it immediately (i.e. no refresh needed).</p></li>
+<li><p><code>void writeimagefile(char *filename, int left, int top, int right, int bottom)</code> writes a <code>.bmp</code> file from the screen rectangle defined by (left,top–right,bottom).</p></li>
+<li><p><code>void kbhit(void)</code> returns 1 when a key is pressed, excluding Shift, Alt, etc.</p></li>
+<li><p><code>int lastkey(void)</code> returns the last key that was detected by <code>kbhit()</code>.</p></li>
+<li><p><code>void xkbhit(void)</code> returns 1 when any key is pressed, including Shift, Alt, etc.</p></li>
+</ul>
+<h2 id="the-real-thing">The Real Thing</h2>
+<p>You may want to try the online Borland Turbo C 2.01 emulator at the Internet Archive:</p>
+<p><a href="https://archive.org/details/msdos_borland_turbo_c_2.01" class="uri">https://archive.org/details/msdos_borland_turbo_c_2.01</a>.</p>
+<p>The <code>bgidemo.c</code> program demonstrates the capabilities of the BGI library. You can download it and compile it using <code>SDL_bgi</code>; in Windows, you will have to change its <code>main()</code> definition.</p>
+<h2 id="bugs-issues">Bugs &amp; Issues</h2>
+<p>Please see the accompanying document <code>BUGS</code>.</p>
+<p>Probably, this documentation is not 100% accurate. Your feedback is more than welcome.</p>

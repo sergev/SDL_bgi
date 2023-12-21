@@ -1,0 +1,152 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue howto_Python.md -o howto_Python.pdf
+
+--->
+<h1 id="how-to-use-sdl_bgi-in-python-programs">How to use <code>SDL_bgi</code> in Python programs</h1>
+<p>Please make sure that you installed the <code>SDL_bgi</code> binaries for your platform, as described in <code>INSTALL_Python.md</code>, before proceeding.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p><code>SDL_bgi</code> is written in C, and its Python bindings are implemented via the <a href="https://docs.python.org/3/library/ctypes.html">ctypes</a> library. In general:</p>
+<ul>
+<li><p>functions in Python have the same name as their C counterparts;</p></li>
+<li><p>constants and enums are implemented as variables;</p></li>
+<li><p>standard C types (<code>int</code>, <code>float</code>, <code>char *</code>, etc.) are mapped to Python types;</p></li>
+<li><p>structs are available as <code>ctypes</code> classes that have the same name and field names. For example:</p></li>
+</ul>
+<pre><code>C struct                     Python class
+--------                     ------------
+struct arccoordstype {       class arccoordstype (Structure):
+  int x;                         _fields_ = [ (&quot;x&quot;, c_int),    
+  int y;                                      (&quot;y&quot;, c_int),    
+  int xstart;                                 (&quot;xstart&quot;, c_int)
+  int ystart;                                 (&quot;ystart&quot;, c_int)
+  int xend;                                   (&quot;xend&quot;, c_int), 
+  int yend;                                   (&quot;yend&quot;, c_int) ]
+};</code></pre>
+<p>There are minor differences explained below.</p>
+<h2 id="syntax-differences">Syntax differences</h2>
+<p><code>ctypes</code> implements new types that are mapped to equivalent Python types; for example, <code>c_int</code> is equivalent to <code>int</code>. Please refer to <code>ctypes</code>’ <a href="https://docs.python.org/3/library/ctypes.html#fundamental-data-types">Reference</a>.</p>
+<p>2D arrays can be implemented via <a href="https://numpy.org/">Numpy</a>; please see for example <code>demo/life.py</code> or <code>demo/buffers_numpy.py</code>. Strictly speaking, Numpy is not required; but working with arrays without it is a pain.</p>
+<p>Memory buffers, used for example by <code>getimage()</code> or <code>getbuffer()</code>, are implemented using function <code>create_string_buffer()</code>.</p>
+<p>The <code>byref()</code> function can be used to pass variables by reference, as in the following functions:</p>
+<pre><code># void detectgraph (int *graphdriver, int *graphmode);
+graphdriver, graphmode = c_int (), c_int ()
+detectgraph (byref (graphdriver), byref (graphmode))
+print (&quot;graphdriver, graphmode: &quot;, graphdriver.value, graphmode.value)
+
+# void getarccoords (struct arccoordstype *arccoords);
+ac = arccoordstype ()
+getarccoords (byref (ac))
+print (&quot;x, y, xstart, ystart, xend, yend: &quot;, ac.x, ac.y, 
+        ac.xstart, ac.ystart, ac.xend, ac.yend)
+
+# void getaspectratio (int *xasp, int *yasp);
+xasp, yasp = c_int (), c_int ()
+getaspectratio (byref (xasp), byref (yasp))
+print (&quot;xasp, yasp: &quot;, xasp.value, yasp.value)
+
+# void getfillsettings (struct fillsettingstype *fillinfo);
+fillinfo = fillsettingstype ()
+getfillsettings (byref (fillinfo))
+print (&quot;pattern, color: &quot;, fillinfo.pattern, fillinfo.color)
+
+# void getimage ()
+isize = imagesize (0, 0, len, 16)
+image = create_string_buffer (isize)
+getimage (0, 0, len, 16, image)
+
+# void getlinesettings (struct linesettingstype *lineinfo);
+lineinfo = linesettingstype ()
+getlinesettings (byref (lineinfo))
+print (&quot;linestyle, thickness: &quot;, ls.linestyle, ls.thickness)
+
+# void getmoderange (int graphdriver, int *lomode, int *himode);
+lomode, himode = c_int (), c_int ()
+getmoderange (0, byref (lomode), byref (himode))
+print (&quot;lomode, himode: &quot;, lomode.value, lomode.value)
+
+# void getmouseclick (int btn, int *x, int *y);
+kind, x, y = c_int (), c_int (), c_int ()
+getmouseclick (kind, byref (x), byref (y))
+print (&quot;mouse x, mouse y: &quot;, x.value, y.value)
+
+# void getscreensize (int x, int y);
+x, y = c_int (), c_int ()
+getscreensize (byref (x), byref (y))
+print (&quot;size x, size y: &quot;, x, y)</code></pre>
+<h2 id="pythonic-syntax">Pythonic Syntax</h2>
+<p>The following functions provide a more Pytonic syntax that only uses standard Python types:</p>
+<pre><code># void detectgraph (int *graphdriver, int *graphmode);
+graphdriver, graphmode = detectgraph ()
+print (&quot;graphdriver, graphmode: &quot;, graphdriver, graphmode);
+
+# void getarccoords (struct arccoordstype *arccoords);
+ac = arccoordstype ()
+ac = getarccoords ()
+print (&quot;x, y, xstart, ystart, xend, yend: &quot;, ac.x, ac.y, 
+        ac.xstart, ac.ystart, ac.xend, ac.yend)
+
+# void getaspectratio (int *xasp, int *yasp);
+xasp, yasp = getaspectratio ()
+print (&quot;xasp, yasp: &quot;, xasp, yasp)
+
+# void getfillsettings (struct fillsettingstype *fillinfo);
+fs = fillsettingstype ()
+fs = getfillsettings ()
+print (&quot;pattern, color: &quot;, fs.pattern, fs.color)
+
+# void getlinesettings (struct linesettingstype *lineinfo);
+ls = linesettingstype ()
+ls = getlinesettings ()
+print (&quot;linestyle, thickness: &quot;, ls.linestyle, ls.thickness)
+
+# void getmoderange (int graphdriver, int *lomode, int *himode);
+lomode, himode = getmoderange ()
+print (&quot;lomode, himode: &quot;, lomode, lomode)
+
+# void getmouseclick (int btn, int *x, int *y);
+x, y = getmouseclick (WM_LBUTTONDOWN)
+print (&quot;mouse x, mouse y: &quot;, x, y)
+
+# void getscreensize (int x, int y);
+x, y = getscreensize ()
+print (&quot;size x, size y: &quot;, x, y)
+
+# void initgraph (int *graphdriver, int *graphmode, char *pathtodriver)
+initgraph ()</code></pre>
+<h2 id="helper-functions">Helper Functions</h2>
+<p>The following functions can be useful:</p>
+<p><code>list2vec (list)</code>: converts a Python list of integers to a vector; used for example by <code>drawpoly()</code></p>
+<p><code>vec2buf (vector)</code>: returns a string buffer that contains the values stored in <code>vector</code>. This is a 1-dimensional array that can be obtained from a Numpy 2D array ‘matrix’ with <code>reshape (matrix, -1)</code>.</p>
+<p><code>sizeofint ()</code>: equivalent to C <code>sizeof (int)</code>. Please note that this is not the same as <code>sys.getsizeof()</code>!</p>
+<h2 id="missing-features">Missing Features</h2>
+<p>SDL2-based variables <code>bgi_window</code>, <code>bgi_renderer</code>, <code>bgi_texture</code>, <code>PALETTE_SIZE</code>, and function <code>copysurface()</code> are not available.</p>
+<h2 id="speeding-things-up">Speeding Things Up</h2>
+<p>Python is an interpreted language, and its performance is quite poor if compared to compiled code. The <a href="https://www.pypy.org">PyPy</a> interpreter should make Python code run faster, but <code>SDL_bgi</code> programs run much slower with PyPy than with CPython. Another Python implementation, <a href="https://www.pyston.org">Pyston</a>, actually runs <code>SDL_bgi</code> programs definitely faster than CPython.</p>
+<p>To give your programs a real boost, I strongly suggest that module <a href="https://numba.pydata.org/">Numba</a> be used. Numba is a high performance Python JIT compiler that can translate a large subset of Python and NumPy code into fast machine code. It uses simple function decorators; please have a look at <code>demo/mandelbrot.py</code> to see how it works.</p>
+<h2 id="making-standalone-binaries">Making Standalone Binaries</h2>
+<p>To deploy a Python program as a standalone executable file, you may use <a href="https://pyinstaller.org">PyInstaller</a> or <a href="https://nuitka.net/">Nuitka</a>.</p>
+<h3 id="pyinstaller">Pyinstaller</h3>
+<p>Run it as in the following example:</p>
+<pre><code>test$ pyinstaller -F fern.py 
+121 INFO: PyInstaller: 5.4.1
+121 INFO: Python: 3.10.4
+...
+7373 INFO: Building EXE from EXE-00.toc completed successfully.
+test$ _</code></pre>
+<p>The resulting executable will be created in directory <code>dist/</code>.</p>
+<h3 id="nuitka">Nuitka</h3>
+<p>Run it as in the following example:</p>
+<pre><code>test$ nuitka3 --onefile --remove-output fern.py
+Nuitka-Options:INFO: Used command line options: --onefile \
+  --remove-output fern.py
+Nuitka:INFO: Starting Python compilation with Nuitka &#39;1.1.3&#39; \
+  on Python &#39;3.10&#39; commercial grade &#39;not installed&#39;.
+...
+Nuitka:INFO: Successfully created &#39;fern.bin&#39;.
+test$ _</code></pre>
+<p>When run on Windows, you get <code>fern.exe</code> and <code>fern.cmd</code>, which is a batch file that sets up the proper runtime environment for the executable. Run <code>fern.cmd</code> to start the program; on MSYS2, use:</p>
+<pre><code>test$ start fern.cmd</code></pre>
+<p>On my GNU/Linux Mint 20.2 box, Nuitka creates a much smaller executable than Pyinstaller does.</p>

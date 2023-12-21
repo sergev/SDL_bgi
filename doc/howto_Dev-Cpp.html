@@ -1,0 +1,54 @@
+<!---
+
+  Convert this file with:
+
+  pandoc -V urlcolor=blue howto_Dev-Cpp.md -o howto_Dev-Cpp.pdf
+
+--->
+<h1 id="how-to-compile-sdl_bgi-programs-with-dev-c">How to compile <code>SDL_bgi</code> programs with Dev-C++</h1>
+<p>These instructions show how to compile an <code>SDL_bgi</code> program using Dev-C++; we will use <code>fern.c</code>, provided in the <code>demo/</code> directory.</p>
+<p>Let’s assume that Dev-C++ is installed in <code>C:\Dev-Cpp</code>, and that the SDL2 development libraries for MinGW are installed in <code>C:\SDL2-*</code>. If you installed the software in different directories, change the following instructions accordingly.</p>
+<p>The procedure was tested with Orwell Dev-Cpp 5.11, TDM64-GCC 10.3.0, and SDL2-devel-2.24.2-mingw.tar.gz. Newer releases of these packages should work.</p>
+<p>Links:</p>
+<p><a href="https://sourceforge.net/projects/orwelldevcpp/" class="uri">https://sourceforge.net/projects/orwelldevcpp/</a></p>
+<p><a href="https://libsdl.org/download-2.0.php" class="uri">https://libsdl.org/download-2.0.php</a></p>
+<p><a href="https://jmeubank.github.io/tdm-gcc/" class="uri">https://jmeubank.github.io/tdm-gcc/</a></p>
+<h2 id="upgrading-dev-cs-compiler">Upgrading Dev-C++’s Compiler</h2>
+<p>By default, Dev-C++ ships with TDM-GCC 4.9.2; this is a very old version of <code>gcc</code> that is not compatible with current SDL2 development libraries. To compile <code>SDL_bgi</code> programs, you must upgrade TDM-GCC to a newer release.</p>
+<ul>
+<li><p>remove the directory <code>C:\Dev-Cpp\MinGW64</code></p></li>
+<li><p>install TDM64-GCC in <code>C:\Dev-Cpp\MinGW64</code></p></li>
+<li><p>start Dev-C++. A window will appear, reporting missing compiler directories. Click on <code>Yes</code></p></li>
+<li><p>from menu <code>Tools/Compiler Options.../Compiler set to configure</code>, click on the <code>++</code> icon (<code>Find and automatically configure compilers</code>)</p></li>
+<li><p>when asked to <code>Clear current compiler list?</code>, click on <code>Yes</code></p></li>
+<li><p><code>TDM-GCC 10.3.0 64-bit release</code> will be set as the <code>Compiler set to   configure</code>. Click on <code>Ok</code></p></li>
+<li><p>test Dev-C++ and make sure that you can compile programs.</p></li>
+</ul>
+<h2 id="installing-sdl_bgi">Installing <code>SDL_bgi</code></h2>
+<ul>
+<li><p>copy <code>bin/Dev-Cpp/SDL_bgi.dll</code> to<br />
+<code>C:\Dev-Cpp\MinGW64\lib</code></p></li>
+<li><p>copy <code>src/SDL_bgi.h</code> to<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include\SDL2</code></p></li>
+<li><p>copy <code>src/graphics.h</code> to<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include</code></p></li>
+</ul>
+<h2 id="how-to-compile">How to compile</h2>
+<ul>
+<li><p>Run Dev-C++ and start an empty project called <code>Fern</code>: menu <code>File/New/Project...</code>, tick “C Project”, select “Empty Project”, insert the name “Fern”, click on Ok, then save the project file</p></li>
+<li><p>in the left-hand pane, click on tab <code>Project</code>, remove <code>Untitled</code>, right click on <code>Fern</code>, click on <code>Add to project...</code>, then pick <code>fern.c</code></p></li>
+<li><p>menu <code>Project/Project options...</code>, tab <code>Parameters</code>, tab <code>Linker</code>: add the string <code>-lmingw32 -lSDL_bgi -lSDL2main -lSDL2 -mwindows</code></p></li>
+<li><p>menu <code>Project/Project options...</code>, tab <code>Parameters</code>, tab <code>Linker</code>: click on <code>Add library or object</code> and select <code>SDL_bgi</code> from<br />
+<code>C:\Dev-Cpp\MinGW64\lib</code></p></li>
+<li><p>tab <code>Directories</code>, tab <code>Include Directories</code>: add<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include\SDL2</code> and<br />
+<code>C:\SDL2-*\x86_64-w64-mingw32\include</code></p></li>
+<li><p>tab <code>Library Directories</code>: add  <code>C:\SDL2-*\x86_64-w64-mingw32\lib</code> and<br />
+<code>C:\Dev-Cpp\MinGW64\lib</code> then click on Ok</p></li>
+<li><p>compile the program: menu <code>Execute/Compile</code></p></li>
+<li><p>copy `<code>C:\SDL2-*\x86_64-w64-mingw32\bin\SDL2.dll</code> and<br />
+<code>SDL_bgi.dll</code> to the same directory as <code>fern.exe</code></p></li>
+<li><p>run it: menu <code>Execute/Run</code>.</p></li>
+</ul>
+<p><strong>Note 1</strong>: if you release your compiled program, you must also provide <code>SDL2.dll</code> and <code>SDL_bgi.dll</code> in the same directory.</p>
+<p><strong>Note 2</strong>: if your code uses functions provided by <code>stdio.h</code> (e.g. <code>printf()</code>, <code>scanf()</code>, etc.) you must also run a terminal. Remove the option <code>-mwindows</code> from the linker parameters.</p>

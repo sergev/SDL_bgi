@@ -1,0 +1,272 @@
+Changelog
+---------
+
+v. 3.0.0, 2022-12-12
+- Added Python support (sdl_bgi.py)
+- Added doc/howto_Python.md, demo/*.py
+- fixed compatibility bugs in detectgraph(), gettextsettings(),
+  getfillsettings(), drawpoly(), fillpoly(), setcolor(), lastkey(),
+- changed definition of 'struct palettetype' (compatibility)
+- added colorname(), kdelay()
+- _putpixel() renamed as fputpixel() (Python compatibility)
+- extended initwindow() (WinBGIm compatibility)
+- modified Windows Makefiles
+
+v. 2.6.0, 2022-05-31
+
+- Emscripten support: unmodified SDL_bgi programs can be compiled to
+  WebAssembly embedded in html pages
+- added test/Makefile.emscripten, test/emcc.sh, doc/emscripten.md,
+  doc/emscripten.pdf
+- added support for "environment files" (Emscripten replacement for
+  environment variables)
+- added getclick(), doubleclick()
+- extended mouseclick()
+- update Windows Makefiles to SDL2-2.0.22
+
+v. 2.5.1, 2022-02-28
+
+- fixed bug in getch()
+- added copysurface(), lastkey()
+- added test/loadimage.c (demo for SDL2_image and copysurface());
+  added test/pdj.c (demo for lastkey())
+- modified build.sh to to run on GNU/Linux only; renamed as mkpkg.sh
+  to avoid confusion
+- added support for the tcc compiler (GNU/Linux only); added 
+  test/tccrun
+- modified CMakeList.txt
+- documentation: added doc/howto_AppImage.md, doc/howto_AppImage.pdf,
+  doc/README.md; minor updates
+- added doc/icon.png
+- update Windows Makefiles to SDL2-2.0.20
+
+v. 2.5.0, 2021-09-20
+- fixed kbhit() bug on MSYS2 (at last!)
+- fixed minor bug in setallpalette()
+- fixed test/fern.c for TC compatibility
+- modified functions putpixel(), setbkcolor(), setcolor(), 
+  setfillpattern(), setfillstyle(), setpalette(), and setalpha() to
+  handle colours given as out of range numbers
+- modified setallpalette() and setfillstyle() to implement error checks
+  as in TC
+- simplified floodfill() function (implemented recursive version)
+- improved setpalette() to change currently drawn pixels
+- modified delay() to take events into account
+- modified resizepalette()
+- added getrgbpalette(), setallrgbpalette(), and RGBPALETTE()
+- added test program test/rgbpalette.c
+- implemented getwindowwidth() and getwindowheight() as macros for
+  WinBGIm compatibility
+- removed test program test/setpalette.c
+- updated Windows Makefiles to SDL2-2.0.16
+- documentation updates
+
+v. 2.4.4, 2021-05-04
+- fixed bug that affected floodfill() with fill patterns in rare cases
+- extended setcolor(col) to implement an undocumented TC feature; if
+  'col' > MAXCOLORS, then col %= MAXCOLORS
+- documentation updates
+
+v. 2.4.3, 2021-02-24
+- modified getscreensize() behaviour (suggested by Fanourios Attard)
+- added setwintitle()
+- added man page (graphics.3)
+- documentation fixes and updates
+- changed test/simple.c to avoid getch() bug on MSYS2
+- updated Windows Makefiles to SDL2-2.0.14 and latest releases of
+  Code::Blocks and DevCpp
+
+v. 2.4.2, 2020-11-11
+- implemented native vector fonts, compatible with Borland .CHR fonts
+- implemented long-forgotten graphics error checks!
+- added resetwinoptions(), getscreensize(), edelay(), getmaxheight(),
+  getmaxwidth(), resizepalette()
+- added undocumented clearviewport() in setbkcolor()
+- changed setwinoptions() to reset options for newly created windows
+- fixed .CHR font loading on Windows
+- fixed graphresult() to provide actual error codes
+- fixed subtle bug in outtextxy() (CP must not be moved)
+- fixed compatibility in getpalette(), getpalettesize(),
+  setallpalette(), setusercharsize()
+- fixed setrgbpalette() to avoid out of range errors
+- improved fill patterns
+- documentation updates
+
+v. 2.4.1, 2020-08-08
+- implemented a 16-colour palette that uses the same RGB values as
+  Turbo C. This palette is used if the environment variable
+  SDL_BGI_PALETTE is set to "BGI"
+- extended setpalette() to modify the default 16 colours too
+  (requested by Austin Hurst)
+- added initpalette() to restore the original 16 colours in the
+  palette
+- added more Hershey fonts: Cursive, Futural, Rowmant, and Timesr
+- fine tuning of Hershey font metrics; now they equal the metrics of
+  corresponding .CHR fonts
+- Preliminary .CHR font loading support, by Marco Diego Aurélio
+  Mesquita: added installuserfont(). Does not work on Windows.
+- fixed off-by-1 in CENTER_TEXT
+- fixed undocumented feature in bar3d() (4 pixel vertical offset on
+  the top)
+- simplified installation on macOS using the Homebrew package manager
+- documentation and Makefile updates
+
+v. 2.4.0, 2020-02-20
+- Hershey font support as a replacement for the original Borland
+  .chr fonts (suggested by Marco Diego Aurélio Mesquita)
+- if the SDL_BGI_RES environment variable is set to "VGA", 
+  initgraph (DETECT, ...) forces VGA (640x480) resolution
+- fixed missing refresh() in getch()
+- fixed long-standing bug in settextjustify() when text is vertical
+- fixed long-standing compatibility problem with kbhit()
+- fixed bug in getbuffer() and putbuffer()
+- added getlinebuffer() and putlinebuffer()
+- changed 8x8 bitmap font using the one from the DosBox emulator
+- added '-std=gnu99' in Makefiles for better compatibility
+- removed delay in closegraph() when not in 'auto mode'
+- added 'test/fonts.c' and 'test/linebuffers.c', removed 'test/moveit.c'
+- code cleanup
+
+v. 2.3.1, 2020-01-20
+- added getbuffer(), putbuffer(), COLOR32(), and colorRGB (macro) for
+  faster pixel manipulation; added showinfobox(), getleftclick(), 
+  getmiddleclick(), getrightclick() 
+- documentation updates and improvements
+- added test/bgidemo.c
+- code cleanup
+
+v. 2.3.0, 2019-08-01
+- added 'auto mode': initgraph() performs automatic screen refresh
+  when the environment variable SDL_BGI_RATE is set to 'auto' or to
+  the desired refresh rate (e.g. 60). This can be used as an
+  alternative to 'slow mode', and it provides a huge performance
+  boost. The new function sdlbgiauto() is also available. BEWARE:
+  automatic refresh may not work on some NVIDIA graphics cards.
+  Patch provided by Marco Diego Aurélio Mesquita.
+- added compatibility with C++ programs
+- added showerrorbox()
+- improved compatibility in bar3d()
+- fixed bug in setfillpattern()
+- updated Makefiles for Windows (updated to SDL2-2.0.10)
+- documentation updates
+
+v. 2.2.4, 2018-11-15
+- added some graphics modes for better compatibility
+  with old programs
+- fixed bug in setvisualpage()
+- minor fix in getch()
+- fix in putimage() bitwise operations
+- modified readimagefile() again
+  (reported by Carlos Gustavo Ramirez Rodriguez)
+- added test/kaleido.c
+- added savestate() and restorestate() in turtle.c
+- documentation updates and improvements
+
+v. 2.2.3, 2018-09-18
+- fixed bug in setalpha()
+- rewritten readimagefile() to change unwanted behaviour
+  (reported by Fanourios Attard)
+
+v. 2.2.2, 2018-09-10
+- documentation updates (clarification on colours)
+- constants TMP_FG_COL, TMP_BG_COL, and TMP_FILL_COL added
+
+v. 2.2.1, 2018-08-08
+- renamed getch() to bgi_getch() and added the macro getch()
+  to avoid Mingw bug
+- delay() rewritten to take care of key presses
+- fixed bug in BLUE_VALUE(), GREEN_VALUE(), RED_VALUE(), setalpha()
+- added ALPHA_VALUE()
+- added test/psychedelia.c
+- code revision and cleanup
+
+v. 2.2.0, 2018-07-18
+- added setwinoptions() for window title, position, and SDL flags
+- added support for multiple windows: extended initwindow(),
+  added getcurrentwindow(), setcurrentwindow(), closewindow()
+- SDL_QUIT support in getch(), getevent(), kbhit(), xkbhit()
+- documentation updates
+
+v. 2.1.2, 2018-06-05
+- documentation updates (Code::Blocks, Dev-C++)
+
+v. 2.1.1, 2018-05-25
+- fixed SDL_bgi.h (missing stdio.h, stdlib.h, and string.h)
+- merged SDL_bgi.h and SDL_bgi_font.h
+
+v. 2.1.0, 2018-01-02
+- fixed stupid bug in getch()
+- added mouse wheel up/down events
+- code cleanup
+- improved documentation
+- improved turtle graphics
+- added CMake support for GNU/Linux
+  (thanks to Jani Rautiainen)
+- added Mingw-w64 + MSYS2 support
+- added macOS support
+
+v. 2.0.8, 2016-11-15
+- fixed bug in palette-manipulating functions 
+  (reported by Jacek Mainczyk)
+- Makefile changes
+
+v. 2.0.7, 2016-11-10
+- fixed bug in event()
+  (reported by Peje Nilsson)
+- added eventtype()
+
+v. 2.0.6, 2016-02-29
+- fixed bug in writeimagefile()
+  (reported by Manea Alexandru Damian)
+- implemented clipping in readimagefile()
+- turtle graphics improvements
+- documentation improvements
+
+v. 2.0.5, 2015-12-13
+- fillpoly() correctly implemented
+- demo programs sdlbgidemo.c and fern.c improved
+- symbol _SDL_BGI_H defined in SDL_bgi.h
+- minor fix in getch()
+
+v. 2.0.4, 2015-11-30
+- rewritten to use SDL_Surfaces only instead of
+  bitmaps in main RAM
+- ellipse() and fillellipse() improved
+- xkbhit() added
+
+v. 2.0.3, 2015-09-28
+- in "slow mode", screen refresh is also 
+  triggered by kbhit() and getch()
+- minimal dos.h and conio.h provided
+- kbhit() rewritten to avoid buffered keys
+
+v. 2.0.2, 2015-06-03
+- fill patterns (not for floodfill() yet)
+- setfillpattern()/getfillpattern() implemented
+- writeimagefile() added
+- documentation updates
+- test programs updates
+
+v. 2.0.1, 2015-05-11
+- line patterns implemented
+- floodfill improvements
+- writeimagefile() added
+- documentation updates
+
+v. 2.0.0, 2015-04-30
+- major release: rewritten to use SDL2 only
+- added readimagefile() and logical plotting (XOR, etc.)
+
+v. 1.0.1, 2014-12-09
+- Fixed minor bugs in putpixel()
+  (reported by Angelo Graziosi)
+- changed getimage()/putimage() to include width, heigth info
+  in saved bitmap
+- changed getimage()/putimage() to include viewport info
+- fixed MAXCOLORS value
+  (reported by Angelo Graziosi)
+- fixed kbhit() behaviour (reported by Angelo Graziosi) - but breaks
+  mouseclick() as a result. To be fixed later.
+
+v. 1.0.0, 2014-11-07
+- Initial release.

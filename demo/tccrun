@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ $(uname) != "Linux" ] ; then
+  echo "Sorry, GNU/Linux only!"
+  exit 1
+fi
+
+if ! [ -x "$(command -v tcc)" ] ; then
+  echo "Error: 'tcc' could not be found." >&2
+  exit 1
+fi
+
+MYSELF=$(basename $0)
+
+if [ $# -eq 0 ] ; then
+  printf "Usage: ${MYSELF} <file.c> [arguments]\n"
+  exit 1
+fi
+
+PROGRAM=$1
+shift
+ARGS=$@
+# you may have to extend this variable to include "-lSDL2_image"
+SDL_BGI_OPTS="-I /usr/include/SDL2 -I. -lSDL_bgi -lSDL2"
+TCC_OPTS="-w -D SDL_DISABLE_IMMINTRIN_H"
+tcc -run $TCC_OPTS $SDL_BGI_OPTS $PROGRAM $ARGS
+
+# --- end of file tccrun

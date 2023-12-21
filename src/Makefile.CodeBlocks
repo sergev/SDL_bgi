@@ -1,0 +1,49 @@
+# Makefile for SDL_bgi, for CodeBlocks + Mingw 20.03 
+# and SDL2 (tested with 2.0.24)
+
+# To compile SDL_bgi for CodeBlocks from the 
+# MSYS2 shell, run this command:
+# PATH=/c/CodeBlocks/MinGW/bin/:$PATH && make -f Makefile.CodeBlocks
+
+VERSION := $(shell cat ../VERSION)
+NAME = SDL_bgi
+SRC = $(NAME).c
+OBJ = $(NAME).o
+HEADER1 = SDL_bgi.h 
+HEADER2 = graphics.h
+
+# We assume that CodeBlocks is installed in C:\CodeBlocks,
+# while SDL2 is installed in C:\SDL2-*
+SDL_DIR = /c/SDL2-*
+INC_DIR = /c/CodeBlocks/MinGW/include/
+SDL_INC = $(SDL_DIR)/x86_64-w64-mingw32/include/
+SDL_LIB = $(SDL_DIR)/x86_64-w64-mingw32/lib/
+LIB_DIR = /c/CodeBlocks/MinGW/bin/
+LIB     = $(NAME).dll
+LDFLAGS = -L $(SDL_LIB) -lSDL2
+# Use gcc and strip provided by CodeBlocks
+STRIP   = strip.exe
+CC      = gcc.exe
+CFLAGS = -O2 -g -std=gnu99 -c -Wall -I . -I $(INC_DIR) -I $(SDL_INC)
+
+.PHONY : all
+all: $(LIB)
+
+OBJ:
+	$(CC) $(CFLAGS) $(SRC)
+
+$(LIB): $(OBJ)
+	$(CC) -shared -o $(LIB) $(OBJ) $(LDFLAGS) ; \
+	$(STRIP) $(LIB)
+
+install: $(LIB) $(HEADER1)
+	cp $(LIB) $(LIB_DIR) ; \
+	cp $(HEADER1) $(SDL_INC) ; \
+	cp $(HEADER2) $(INC_DIR)
+
+uninstall:
+	rm -f $(SDL_INC)/$(HEADER1) ; \
+        rm -f $(INC_DIR)/$(HEADER2)
+	rm -f $(LIB_DIR)/$(LIB)
+
+# End of Makefile.CodeBlocks
