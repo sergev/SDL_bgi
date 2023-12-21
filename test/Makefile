@@ -9,14 +9,14 @@ PLATFORM := $(shell uname -s)
 
 # GNU/Linux
 ifeq ($(PLATFORM),Linux)
-CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/include/SDL2 -Wall 
+CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/include/SDL2 -Wall
 LIBS = -lSDL_bgi -lSDL2
 endif
 
 # macOS - tested on Catalina
 ifeq ($(PLATFORM),Darwin)
 CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/local/include
-LIBS = -lSDL_bgi -lSDL2
+LIBS = -lSDL_bgi -lSDL2 -Wl,-rpath,/usr/local/lib
 endif
 
 # Latest MSYS2 + Mingw-w64

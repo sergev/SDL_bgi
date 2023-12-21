@@ -10,14 +10,14 @@ PLATFORM := $(shell uname -s)
 
 # GNU/Linux
 ifeq ($(PLATFORM),Linux)
-CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/include/SDL2 -Wall 
+CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/include/SDL2 -Wall
 LIBS = -lSDL_bgi -lSDL2
 endif
 
 # macOS - tested on Catalina
 ifeq ($(PLATFORM),Darwin)
 CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/local/include
-LIBS = -lSDL_bgi -lSDL2
+LIBS = -lSDL_bgi -lSDL2 -Wl,-rpath,/usr/local/lib
 endif
 
 # Latest MSYS2 + Mingw-w64
@@ -56,74 +56,74 @@ else
 	$(info Could not find 'wget', can't download bgidemo.c)
 endif
 
-boo: boo.c 
+boo: boo.c
 	$(CC) $(CFLAGS) -o boo boo.c $(LIBS)
 
-buffers: buffers.c 
+buffers: buffers.c
 	$(CC) $(CFLAGS) -o buffers buffers.c $(LIBS)
 
-cellular: cellular.c 
+cellular: cellular.c
 	$(CC) $(CFLAGS) -o cellular cellular.c $(LIBS)
 
-dla: dla.c 
+dla: dla.c
 	$(CC) $(CFLAGS) -o dla dla.c $(LIBS)
 
-fern: fern.c 
+fern: fern.c
 	$(CC) $(CFLAGS) -o fern fern.c $(LIBS)
 
-floodfilltest: floodfilltest.c 
+floodfilltest: floodfilltest.c
 	$(CC) $(CFLAGS) -o floodfilltest floodfilltest.c $(LIBS)
 
-fonts: fonts.c 
+fonts: fonts.c
 	$(CC) $(CFLAGS) -o fonts fonts.c $(LIBS)
 
-hopalong: hopalong.c 
+hopalong: hopalong.c
 	$(CC) $(CFLAGS) -o hopalong hopalong.c $(LIBS) -lm
 
-life: life.c 
+life: life.c
 	$(CC) $(CFLAGS) -o life life.c $(LIBS)
 
-linebuffers: linebuffers.c 
+linebuffers: linebuffers.c
 	$(CC) $(CFLAGS) -o linebuffers linebuffers.c $(LIBS)
 
 # you need SDL2_Image to compile this program
-loadimage: loadimage.c 
+loadimage: loadimage.c
 	$(CC) $(CFLAGS) -o loadimage loadimage.c $(LIBS) -lSDL2_image
 
-kaleido: kaleido.c 
+kaleido: kaleido.c
 	$(CC) $(CFLAGS) -o kaleido kaleido.c $(LIBS)
 
-mandelbrot: mandelbrot.c 
+mandelbrot: mandelbrot.c
 	$(CC) $(CFLAGS) -o mandelbrot mandelbrot.c $(LIBS)
 
-minimal: minimal.c 
+minimal: minimal.c
 	$(CC) $(CFLAGS) -o minimal minimal.c $(LIBS)
 
-mousetest: mousetest.c 
+mousetest: mousetest.c
 	$(CC) $(CFLAGS) -o mousetest mousetest.c $(LIBS)
 
-multiwin: multiwin.c 
+multiwin: multiwin.c
 	$(CC) $(CFLAGS) -o multiwin multiwin.c $(LIBS)
 
-pdj: pdj.c 
+pdj: pdj.c
 	$(CC) $(CFLAGS) -o pdj pdj.c $(LIBS) -lm
 
-plasma: plasma.c 
+plasma: plasma.c
 	$(CC) $(CFLAGS) -o plasma plasma.c $(LIBS) -lm
 
-psychedelia: psychedelia.c 
+psychedelia: psychedelia.c
 	$(CC) $(CFLAGS) -o psychedelia psychedelia.c $(LIBS) -lm
 
-rgbpalette: rgbpalette.c 
+rgbpalette: rgbpalette.c
 	$(CC) $(CFLAGS) -o rgbpalette rgbpalette.c $(LIBS) -lm
 
-sdlbgidemo: sdlbgidemo.c 
+sdlbgidemo: sdlbgidemo.c
 	$(CC) $(CFLAGS) -o sdlbgidemo sdlbgidemo.c $(LIBS) -lm
 
-simple: simple.c 
+simple: simple.c
 	$(CC) $(CFLAGS) -o simple simple.c $(LIBS)
 
-turtledemo: turtledemo.c turtle.c 
+turtledemo: turtledemo.c turtle.c
 	$(CC) $(CFLAGS) -o turtledemo turtledemo.c turtle.c $(LIBS) -lm
 
 clean:

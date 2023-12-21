@@ -1,4 +1,4 @@
-# CMakeLists.txt for SDL_bgi 
+# CMakeLists.txt for SDL_bgi
 # GG, 2022-11-01
 
 # --- Building, thanks to cmake
@@ -11,7 +11,7 @@ set (SDL_BGI_VERSION 3.0.0)
 project (SDL_bgi VERSION ${SDL_BGI_VERSION} LANGUAGES C)
 
 # Strip the library after building
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
+#set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
 
 # Include SDL2 support for cmake
 find_package (SDL2 REQUIRED)
@@ -36,7 +36,7 @@ add_library (${PROJECT_NAME} SHARED ${SOURCES})
 target_link_libraries (SDL_bgi ${SDL2_LIBRARIES})
 
 # Install library
-install (TARGETS ${PROJECT_NAME} 
+install (TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} # Windows
 )

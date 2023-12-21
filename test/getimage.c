@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
-#include <malloc.h>
 
 void save_screen(void *buf[4]);
 void restore_screen(void *buf[4]);
