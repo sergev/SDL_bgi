@@ -33,9 +33,14 @@ CFLAGS = -std=gnu99 -O2 -g -I. -I/mingw64/include -I/mingw64/include/SDL
 LIBS = -lmingw32 -L/mingw64/bin -lSDL_bgi -lSDL2main -lSDL2 # -mwindows
 endif
 
+# BGI_CFLAGS and BGI_LIBS may point to an uninstalled SDL_bgi;
+# see the top level Makefile
+CFLAGS := $(BGI_CFLAGS) $(CFLAGS)
+LIBS := $(BGI_LIBS) $(LIBS)
+
 PROGRAMS = boo buffers cellular dla fern floodfilltest \
 	   fonts hopalong kaleido life linebuffers \
-	   mandelbrot minimal mousetest multiwin plasma pdj \
+	   mandelbrot minimal mousetest multiwin pages plasma pdj \
 	   psychedelia rgbpalette sdlbgidemo simple turtledemo
 
 all: $(PROGRAMS)
@@ -107,6 +112,9 @@ mousetest: mousetest.c
 
 multiwin: multiwin.c
 	$(CC) $(CFLAGS) -o multiwin multiwin.c $(LIBS)
+
+pages: pages.c
+	$(CC) $(CFLAGS) -o pages pages.c $(LIBS)
 
 pdj: pdj.c
 	$(CC) $(CFLAGS) -o pdj pdj.c $(LIBS) -lm

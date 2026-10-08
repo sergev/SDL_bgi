@@ -1,7 +1,7 @@
 # Top level Makefile for SDL_bgi
-# Builds the library in src/ and the test programs in test/.
-# Test programs are linked against the library in src/, so they can
-# be run without installing it first.
+# Builds the library in src/, the test programs in test/, and the
+# demo programs in demo/. Programs are linked against the library
+# in src/, so they can be run without installing it first.
 
 TOPDIR  := $(CURDIR)
 INCDIR  = build/include
@@ -13,15 +13,18 @@ HEADERS = $(INCDIR)/graphics.h $(INCDIR)/SDL2/SDL_bgi.h
 BGI_CFLAGS = -I$(TOPDIR)/$(INCDIR)
 BGI_LIBS   = -L$(TOPDIR)/src -Wl,-rpath,$(TOPDIR)/src
 
-.PHONY: all lib test install clean
+.PHONY: all lib test demo install clean
 
-all: test
+all: test demo
 
 lib:
 	$(MAKE) -C src
 
 test: lib $(HEADERS)
 	$(MAKE) -C test BGI_CFLAGS="$(BGI_CFLAGS)" BGI_LIBS="$(BGI_LIBS)"
+
+demo: lib $(HEADERS)
+	$(MAKE) -C demo BGI_CFLAGS="$(BGI_CFLAGS)" BGI_LIBS="$(BGI_LIBS)"
 
 $(INCDIR)/graphics.h: src/graphics.h
 	/usr/bin/install -d $(INCDIR)
@@ -37,6 +40,7 @@ install: lib
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
+	$(MAKE) -C demo clean
 	/bin/rm -rf $(INCDIR)
 
 # --- end of Makefile

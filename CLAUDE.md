@@ -10,11 +10,11 @@ SDL_bgi 3.0.0: a reimplementation of Borland's BGI (`GRAPHICS.H`) on top of SDL2
 
 The quickest way is the top-level `Makefile`:
 ```
-make            # builds the library in src/ and every test program in test/
+make            # builds the library in src/, test programs in test/, demos in demo/
 make install    # same as `make -C src install`
 make clean
 ```
-It copies the headers into `build/include/` (keeping the installed `SDL2/` layout) and builds the tests with `BGI_CFLAGS`/`BGI_LIBS` pointing at the in-tree library, with an rpath to `src/`. The tests therefore run without installing anything. It does not build `demo/`.
+It copies the headers into `build/include/` (keeping the installed `SDL2/` layout) and builds the tests and demos with `BGI_CFLAGS`/`BGI_LIBS` pointing at the in-tree library, with an rpath to `src/`. The tests and demos therefore run without installing anything. `demo/loadimage` (needs SDL2_image) and `demo/bgidemo` (downloaded) are not part of the default build.
 
 Underneath, two independent build systems produce the same shared library from `src/SDL_bgi.c`:
 
@@ -38,7 +38,7 @@ On macOS the `src/`, `test/`, and `demo/` Makefiles get the SDL2 location from `
 
 There is no automated test suite. `test/` contains one interactive program per BGI function (`arc.c`, `setviewport.c`, ...), adapted from the Borland C 3.1 Library Reference. They also compile under Turbo C in DOSBox, so keep them TC-compatible. `demo/` contains bigger example programs in C, with Python equivalents (`*.py`).
 
-When run directly, both Makefiles compile against the **installed** headers and library (`/usr/local/include`, `-lSDL_bgi`), not the ones in your tree. To build against the tree, use the top-level `make`, install first, or (in `test/` only) set `BGI_CFLAGS`/`BGI_LIBS` to point at `src/`. `graphics.h` includes `<SDL2/SDL_bgi.h>`, so the include directory must have an `SDL2/` subdirectory:
+When run directly, both Makefiles compile against the **installed** headers and library (`/usr/local/include`, `-lSDL_bgi`), not the ones in your tree. To build against the tree, use the top-level `make`, install first, or set `BGI_CFLAGS`/`BGI_LIBS` to point at `src/`. `graphics.h` includes `<SDL2/SDL_bgi.h>`, so the include directory must have an `SDL2/` subdirectory:
 ```
 cd test && make            # all test programs
 cd test && make circle     # a single test program
