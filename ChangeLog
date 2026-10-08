@@ -3,6 +3,8 @@ Changelog
 
 Unreleased
 - removed clearviewport() from setbkcolor() (BGI compatibility)
+- refresh no longer raises the window and takes focus; new windows
+  are raised once
 
 v. 3.0.0, 2022-12-12
 - Added Python support (sdl_bgi.py)

@@ -3813,7 +3813,6 @@ static void refresh_window (void)
   // Updates the screen.
 
   updaterect (0, 0, bgi_maxx, bgi_maxy);
-  SDL_RaiseWindow (bgi_window);
 
 } // refresh_window ()
 
@@ -5281,6 +5280,10 @@ int initwindow (int width, int height)
   bgi_window = bgi_win[bgi_current_window];
   bgi_renderer = bgi_rnd[bgi_current_window];
   bgi_texture = bgi_txt[bgi_current_window];
+
+  // bring the new window to the front once; don't do it on
+  // every refresh, or it steals focus from other applications
+  SDL_RaiseWindow (bgi_window);
 
   bgi_activepage[bgi_current_window] =
     bgi_visualpage[bgi_current_window] =
