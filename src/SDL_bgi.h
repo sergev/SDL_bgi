@@ -416,7 +416,7 @@ unsigned
 void initgraph (int *, int *, char *);
 int  installuserdriver (char *, int (*)(void));
 int  installuserfont (char *);
-int  bgi_kbhit (void);
+int  k_bhit (void);
 // fix for MSYS / Mingw64
 #define kbhit k_bhit
 int  lastkey (void);
