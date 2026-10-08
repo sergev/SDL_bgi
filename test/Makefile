@@ -13,10 +13,13 @@ CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/include/SDL2 -Wall
 LIBS = -lSDL_bgi -lSDL2
 endif
 
-# macOS - tested on Catalina
+# macOS - SDL2 from Homebrew, in /usr/local or /opt/homebrew
 ifeq ($(PLATFORM),Darwin)
-CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/local/include
-LIBS = -lSDL_bgi -lSDL2 -Wl,-rpath,/usr/local/lib
+SDL_PREFIX := $(shell sdl2-config --prefix 2> /dev/null || echo /usr/local)
+CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/local/include \
+	 -I$(SDL_PREFIX)/include -I$(SDL_PREFIX)/include/SDL2 -Wall
+LIBS = -L/usr/local/lib -L$(SDL_PREFIX)/lib -lSDL_bgi -lSDL2 \
+       -Wl,-rpath,/usr/local/lib
 endif
 
 # Latest MSYS2 + Mingw-w64
@@ -49,10 +52,12 @@ PROGRAMS = arc bar3d bar circle cleardevice clearviewport closegraph \
 
 all: $(PROGRAMS)
 
+# BGI_CFLAGS and BGI_LIBS may point to an uninstalled SDL_bgi;
+# see the top level Makefile
 $(PROGRAMS): %: %.c
-	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+	$(CC) $(BGI_CFLAGS) $(CFLAGS) -o $@ $< $(BGI_LIBS) $(LIBS)
 
 clean:
-	/bin/rm -f $(PROGRAMS)
+	/bin/rm -rf $(PROGRAMS) *.dSYM
 
 # --- end of Makefile

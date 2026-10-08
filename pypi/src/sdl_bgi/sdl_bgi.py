@@ -38,10 +38,12 @@ from random       import randint
 # try to load the SDL_bgi library
 
 if get_platform () == 'win-amd64':       # Windows, IDLE
-    sdlbgilib = ".\SDL_bgi.dll"
+    sdlbgilib = ".\\SDL_bgi.dll"
 elif get_platform () == 'mingw_x86_64':  # Windows, MSYS2/Mingw64
     sdlbgilib = '/msys64/mingw64/bin/SDL_bgi.dll'
-else: # GNU/Linux, macOS
+elif get_platform ().startswith ('macosx'): # macOS
+    sdlbgilib = 'libSDL_bgi.dylib'
+else: # GNU/Linux
     sdlbgilib = 'libSDL_bgi.so'
 
 try:

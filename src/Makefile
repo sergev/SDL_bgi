@@ -16,8 +16,7 @@ MANPAGE = ../doc/graphics.3.gz
 SDLPY   = sdl_bgi.py
 PYTHON  := $(shell command -v python3 2> /dev/null)
 ifdef PYTHON
-  PYUSERSITE := $(shell python -m site --user-site)
-  $(shell mkdir -p $(PYUSERSITE))
+  PYUSERSITE := $(shell $(PYTHON) -m site --user-site)
 endif
 
 # Detect the platform: GNU/Linux, macOS, or MSYS2
@@ -28,6 +27,7 @@ PLATFORM := $(shell uname -s)
 ifeq ($(PLATFORM),Linux)
 INC_DIR = /usr/include
 SDL_INC = $(INC_DIR)/SDL2
+SDL_CFLAGS = -I $(INC_DIR) -I $(SDL_INC)
 LIB_DIR = /usr/lib/
 LIB     = lib$(NAME).so
 LDFLAGS = -lSDL2
@@ -37,15 +37,21 @@ MANDIR  = /usr/share/man/man3/
 endif
 
 # macOS
+# SDL2 may live in /usr/local (Intel Homebrew) or /opt/homebrew
+# (Apple Silicon Homebrew), so ask sdl2-config where it is.
 ifeq ($(PLATFORM),Darwin)
+SDL_PREFIX := $(shell sdl2-config --prefix 2> /dev/null || echo /usr/local)
 INC_DIR = /usr/local/include
-SDL_INC = /usr/local/include/SDL2
+SDL_INC = $(INC_DIR)/SDL2
+SDL_CFLAGS = -I $(SDL_PREFIX)/include -I $(SDL_PREFIX)/include/SDL2
 LIB_DIR = /usr/local/lib
-LIB     = lib$(NAME).so
-LDFLAGS = -lSDL2
+LIB     = lib$(NAME).dylib
+LDFLAGS = -L$(SDL_PREFIX)/lib -lSDL2 \
+	  -install_name @rpath/$(LIB) \
+	  -compatibility_version 3.0.0 -current_version $(VERSION)
 PIC     = -fPIC
 STRIP   = strip -x
-MANDIR  = /usr/share/man/man3/
+MANDIR  = /usr/local/share/man/man3/
 endif
 
 # MSYS2
@@ -55,6 +61,7 @@ PLATFORM = MSYS2
 # use native MinGW-64 SDL2 packages
 INC_DIR = /mingw64/include
 SDL_INC = $(INC_DIR)/SDL2
+SDL_CFLAGS = -I $(INC_DIR) -I $(SDL_INC)
 LIB_DIR = /mingw64/bin
 LIB     = $(NAME).dll
 LDFLAGS = -L/mingw64/bin -lSDL2
@@ -72,7 +79,7 @@ $(info )
 CC = gcc
 # -Wextra
 CFLAGS = -O2 -std=gnu99 -g -c -Wall \
-	-I $(INC_DIR) -I $(SDL_INC) $(PIC)
+	$(SDL_CFLAGS) $(PIC)
 
 .PHONY: all
 all: $(LIB)
@@ -104,15 +111,17 @@ unwasm:
 endif
 
 install: $(LIB) $(HEADER1)
-	/usr/bin/install -m 755 $(LIB) $(LIB_DIR) ; \
-	/usr/bin/install -m 644 $(HEADER1) $(SDL_INC) ; \
-	/usr/bin/install $(HEADER2) $(INC_DIR) ; \
-	/usr/bin/install $(MANPAGE) $(MANDIR)
+	/usr/bin/install -d $(LIB_DIR) $(SDL_INC) $(INC_DIR) $(MANDIR)
+	/usr/bin/install -m 755 $(LIB) $(LIB_DIR)
+	/usr/bin/install -m 644 $(HEADER1) $(SDL_INC)
+	/usr/bin/install -m 644 $(HEADER2) $(INC_DIR)
+	/usr/bin/install -m 644 $(MANPAGE) $(MANDIR)
 
 # remove this entry?
 python:  $(SDLPY)
 ifdef PYTHON
-	/usr/bin/install $(SDLPY) $(PYUSERSITE)
+	/usr/bin/install -d $(PYUSERSITE)
+	/usr/bin/install -m 644 $(SDLPY) $(PYUSERSITE)
 endif
 
 uninstall:
@@ -120,13 +129,13 @@ uninstall:
 	/bin/rm -f $(INC_DIR)/$(HEADER2) ; \
 	/bin/rm -f $(LIB_DIR)/$(LIB) ; \
 	/bin/rm -f $(PYUSERSITE)/$(SDLPY) ; \
-	/bin/rm -f $(MANDIR)/$(MANPAGE)
+	/bin/rm -f $(MANDIR)/$(notdir $(MANPAGE))
 
 test: all
-	cd ../test; make
+	$(MAKE) -C ../test
 
 clean:
-	/bin/rm -f $(OBJ) $(LIB) a.out *.bc *.a *~
+	/bin/rm -f $(OBJ) $(LIB) a.out *.bc *.a *~ *.so *.dylib *.dll
 
 
 # --- end of Makefile

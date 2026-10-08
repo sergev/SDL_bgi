@@ -34,7 +34,7 @@ Files will be installed in these directories:
 
     SDL_bgi.h      ->  /usr/local/include/SDL2/
     graphics.h     ->  /usr/local/include/
-    libSDL_bgi.so  ->  /usr/local/lib/
+    libSDL_bgi.dylib -> /usr/local/lib/
     sdl_bgi.py     ->  last entry in Python3 sys.path
 
 To uninstall:

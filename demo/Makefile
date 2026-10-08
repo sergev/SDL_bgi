@@ -14,10 +14,13 @@ CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/include/SDL2 -Wall
 LIBS = -lSDL_bgi -lSDL2
 endif
 
-# macOS - tested on Catalina
+# macOS - SDL2 from Homebrew, in /usr/local or /opt/homebrew
 ifeq ($(PLATFORM),Darwin)
-CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/local/include
-LIBS = -lSDL_bgi -lSDL2 -Wl,-rpath,/usr/local/lib
+SDL_PREFIX := $(shell sdl2-config --prefix 2> /dev/null || echo /usr/local)
+CFLAGS = -std=gnu99 -O2 -g -I. -I/usr/local/include \
+	 -I$(SDL_PREFIX)/include -I$(SDL_PREFIX)/include/SDL2 -Wall
+LIBS = -L/usr/local/lib -L$(SDL_PREFIX)/lib -lSDL_bgi -lSDL2 \
+       -Wl,-rpath,/usr/local/lib
 endif
 
 # Latest MSYS2 + Mingw-w64
