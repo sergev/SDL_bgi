@@ -1,6 +1,9 @@
 Changelog
 ---------
 
+Unreleased
+- removed clearviewport() from setbkcolor() (BGI compatibility)
+
 v. 3.0.0, 2022-12-12
 - Added Python support (sdl_bgi.py)
 - Added doc/howto_Python.md, demo/*.py

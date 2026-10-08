@@ -35,24 +35,28 @@ int main (int argc, char *argv[])
 
   setactivepage (0);
   setbkcolor (BLACK);
+  cleardevice ();
   setcolor (YELLOW);
   outtextxy (150, 60, "PAGE");
   outtextxy (150, 120, "0");
   ;
   setactivepage (1);
   setbkcolor (BLUE);
+  cleardevice ();
   setcolor (WHITE);
   outtextxy (150, 60, "PAGE");
   outtextxy (150, 120, "1");
 
   setactivepage (2);
   setbkcolor (RED);
+  cleardevice ();
   setcolor (BLUE);
   outtextxy (150, 60, "PAGE");
   outtextxy (150, 120, "2");
 
   setactivepage (3);
   setbkcolor (GREEN);
+  cleardevice ();
   setcolor (MAGENTA);
   outtextxy (150, 60, "PAGE");
   outtextxy (150, 120, "3");

@@ -26,11 +26,11 @@ int main(int argc, char *argv[])
   /* loop through the available colors */
   for (bkcol = 0; bkcol <= maxcolor; bkcol++) {
 
-    /* clear the screen */
-    cleardevice();
-
     /* select a new background color */
     setbkcolor(bkcol);
+
+    /* clear the screen */
+    cleardevice();
 
     /* output a messsage */
     if (bkcol == WHITE)

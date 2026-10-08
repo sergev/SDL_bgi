@@ -3954,9 +3954,6 @@ void setbkcolor (int col)
     bgi_bg_color = col;
   }
 
-  // this was undocumented!
-  clearviewport ();
-
 } // setbkcolor ()
 
 // -----
