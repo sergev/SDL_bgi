@@ -1,2 +1,35 @@
+# Build directories
 build
+__pycache__
+
+# Object files and libraries
+*.o
+*.a
+*.bc
+*.so
+*.dylib
+*.dll
+*.exe
 *.dSYM
+
+# Test and demo executables: files without an extension,
+# except the tracked ones listed below
+/test/*
+!/test/*.*
+!/test/Makefile
+/test/*.dSYM
+/demo/*
+!/demo/*.*
+!/demo/*/
+!/demo/Makefile
+!/demo/tccrun
+/demo/*.dSYM
+
+# Downloaded by demo/Makefile
+/demo/bgidemo.c
+
+# Emscripten output of demo/emcc.sh
+/demo/*.html
+/demo/*.js
+/demo/*.wasm
+/demo/*.data
