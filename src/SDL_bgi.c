@@ -6058,7 +6058,8 @@ static void updaterect (int x1, int y1, int x2, int y2)
 
   int
     x, y,
-    pitch = (bgi_maxx + 1) * sizeof (Uint32),
+    pitch,
+    src_pitch = (bgi_maxx + 1) * sizeof (Uint32),
     semipitch;
   void
     *pixels;
@@ -6095,7 +6096,7 @@ static void updaterect (int x1, int y1, int x2, int y2)
   for (y = y1; y < y2 + 1; y++)
     memcpy ((Uint8 *) pixels + y * pitch + semipitch,
 	    (Uint8 *) bgi_visualpage[bgi_current_window] +
-	    pitch * y + semipitch,
+	    src_pitch * y + semipitch,
 	    (x2 - x1 + 1) * sizeof (Uint32));
 
   SDL_UnlockTexture (bgi_txt[bgi_current_window]);
