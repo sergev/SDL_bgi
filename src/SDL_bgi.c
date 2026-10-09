@@ -5006,8 +5006,7 @@ void getlinebuffer (int y, Uint32 *linebuffer)
   // faster than getpixel ()
 
   memcpy ((void *) linebuffer,
-	  (void *) bgi_activepage[bgi_current_window] +
-	  y * (bgi_maxx + 1) * sizeof (Uint32),
+	  bgi_activepage[bgi_current_window] + y * (bgi_maxx + 1),
 	  (bgi_maxx + 1) * sizeof (Uint32));
 
 } // getbuffer ()
@@ -5573,8 +5572,7 @@ void putlinebuffer (int y, Uint32 *linebuffer)
 
   check_initgraph ();
 
-  memcpy ((void *) bgi_activepage[bgi_current_window] +
-	  y * (bgi_maxx + 1) * sizeof (Uint32),
+  memcpy ((void *) (bgi_activepage[bgi_current_window] + y * (bgi_maxx + 1)),
 	  linebuffer,
 	  (bgi_maxx + 1) * sizeof (Uint32));
   bgi_refresh_needed = SDL_TRUE;
@@ -6095,8 +6093,8 @@ static void updaterect (int x1, int y1, int x2, int y2)
 
   // copy pixel data from bgi_visualpage
   for (y = y1; y < y2 + 1; y++)
-    memcpy (pixels + y * pitch + semipitch,
-	    (void *) bgi_visualpage[bgi_current_window] +
+    memcpy ((Uint8 *) pixels + y * pitch + semipitch,
+	    (Uint8 *) bgi_visualpage[bgi_current_window] +
 	    pitch * y + semipitch,
 	    (x2 - x1 + 1) * sizeof (Uint32));
 
